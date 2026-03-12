@@ -1,3 +1,3 @@
 from .contact import ContactWhatsappView
-from .message import WhatsappMessageView, WhatsappMessageWebhookView
+from .message import WhatsappMessageView, WhatsappMessageWebhookView, WhatsappMessageByNumberView, WhatsappMessageByNumberAndContactView
 from .number import WhatsappNumberView

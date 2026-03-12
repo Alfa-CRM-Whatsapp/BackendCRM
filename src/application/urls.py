@@ -20,6 +20,8 @@ from core.crm.views import (
     WhatsappMessageView,
     WhatsappMessageWebhookView,
     WhatsappNumberView,
+    WhatsappMessageByNumberView,
+    WhatsappMessageByNumberAndContactView
 )
 
 router = DefaultRouter()
@@ -43,4 +45,14 @@ urlpatterns = [
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
 
     path("api/webhook/whatsapp/", WhatsappMessageWebhookView.as_view(), name="whatsapp-webhook"),
+
+      path(
+        "api/messages/number/<int:number_id>/",
+        WhatsappMessageByNumberView.as_view()
+    ),
+
+    path(
+        "api/messages/number/<int:number_id>/contact/<str:wa_id>/",
+        WhatsappMessageByNumberAndContactView.as_view(),
+    ),
 ]

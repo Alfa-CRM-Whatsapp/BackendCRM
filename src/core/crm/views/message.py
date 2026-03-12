@@ -5,6 +5,7 @@ from core.crm.models import WhatsappMessage, WhatsappNumber, ContactWhatsapp
 from core.crm.serializers import WhatsappMessageListSerializer, WhatsappMessageCreateSerializer
 import json
 from django.conf import settings
+from rest_framework.generics import ListAPIView
 
 class WhatsappMessageView(viewsets.ModelViewSet):
     queryset = WhatsappMessage.objects.all()
@@ -97,3 +98,33 @@ class WhatsappMessageWebhookView(APIView):
             print("Erro ao processar webhook:", str(e))
 
         return JsonResponse({"status": "ok"})
+
+class WhatsappMessageByNumberView(ListAPIView):
+    serializer_class = WhatsappMessageListSerializer
+
+    def get_queryset(self):
+        number_id = self.kwargs["number_id"]
+
+        return WhatsappMessage.objects.filter(
+            from_number_id=number_id
+        ).select_related(
+            "contact",
+            "from_number"
+        ).order_by("id")
+    
+class WhatsappMessageByNumberAndContactView(ListAPIView):
+    serializer_class = WhatsappMessageListSerializer
+
+    def get_queryset(self):
+        number_id = self.kwargs["number_id"]
+        wa_id = self.kwargs["wa_id"]
+
+        return (
+            WhatsappMessage.objects
+            .filter(
+                from_number_id=number_id,
+                contact__wa_id=wa_id
+            )
+            .select_related("contact", "from_number")
+            .order_by("id")
+        )
