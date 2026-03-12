@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Aprovar SuperAdmin</title>
+
+<style>
+body{
+    background:#0f172a;
+    font-family:Arial;
+    color:white;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+
+.card{
+    background:#1e293b;
+    padding:40px;
+    border-radius:12px;
+    width:400px;
+    text-align:center;
+}
+
+button{
+    background:#f97316;
+    border:none;
+    padding:12px 20px;
+    border-radius:8px;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#ea580c;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="card">
+
+<h2>Aprovar novo SuperAdmin</h2>
+
+<p>Email:</p>
+<strong>{{ email }}</strong>
+
+<form method="post">
+{% csrf_token %}
+<br><br>
+<button type="submit">Aprovar SuperAdmin</button>
+</form>
+
+</div>
+
+</body>
+</html>
