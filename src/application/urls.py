@@ -15,11 +15,15 @@ from core.authentication.views import (
     ApproveSuperAdminInviteView,
 )
 
+from core.crm.views import (
+    ContactWhatsappView
+)
+
 router = DefaultRouter()
 router.register(r'users', UserViewSet, basename='user')
+router.register(r'contacts', ContactWhatsappView, basename='contact')
 
 urlpatterns = [
-
     path('admin/', admin.site.urls),
 
     path('api/', include(router.urls)),
@@ -30,7 +34,6 @@ urlpatterns = [
     path("api/superadmin/invite/", CreateSuperAdminInviteView.as_view()),
     path("api/superadmin/approve/", ApproveSuperAdminInviteView.as_view()),
 
-    # Swagger
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
 ]

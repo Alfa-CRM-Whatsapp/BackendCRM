@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'core.authentication',
+    'core.crm',
 ]
 
 AUTH_USER_MODEL = 'authentication.User'
