@@ -18,13 +18,15 @@ from core.authentication.views import (
 from core.crm.views import (
     ContactWhatsappView,
     WhatsappMessageView,
-    WhatsappMessageWebhookView
+    WhatsappMessageWebhookView,
+    WhatsappNumberView,
 )
 
 router = DefaultRouter()
 router.register(r'users', UserViewSet, basename='user')
 router.register(r'contacts', ContactWhatsappView, basename='contact')
 router.register(r'messages', WhatsappMessageView, basename='message')
+router.register(r'numbers', WhatsappNumberView, basename='number')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
