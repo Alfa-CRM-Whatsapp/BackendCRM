@@ -6,6 +6,8 @@ from core.crm.serializers import WhatsappMessageListSerializer, WhatsappMessageC
 import json
 from django.conf import settings
 from rest_framework.generics import ListAPIView
+from rest_framework.response import Response
+import requests
 
 class WhatsappMessageView(viewsets.ModelViewSet):
     queryset = WhatsappMessage.objects.all()
@@ -128,3 +130,70 @@ class WhatsappMessageByNumberAndContactView(ListAPIView):
             .select_related("contact", "from_number")
             .order_by("id")
         )
+
+class WhatsappEmbeddedSignupCallbackView(APIView):
+
+    def get(self, request):
+
+        code = request.GET.get("code")
+
+        if not code:
+            return Response({"error": "code não encontrado"}, status=400)
+
+        # 1️⃣ trocar code por access_token
+        token_response = requests.get(
+            "https://graph.facebook.com/v19.0/oauth/access_token",
+            params={
+                "client_id": settings.META_APP_ID,
+                "client_secret": settings.META_APP_SECRET,
+                "redirect_uri": settings.META_REDIRECT_URI,
+                "code": code,
+            },
+        )
+
+        token_data = token_response.json()
+        access_token = token_data.get("access_token")
+
+        if not access_token:
+            return Response({"error": token_data}, status=400)
+
+        # 2️⃣ buscar businesses do usuário
+        businesses = requests.get(
+            "https://graph.facebook.com/v19.0/me/businesses",
+            params={"access_token": access_token},
+        ).json()
+
+        business_id = businesses["data"][0]["id"]
+
+        # 3️⃣ buscar WABA
+        waba = requests.get(
+            f"https://graph.facebook.com/v19.0/{business_id}/owned_whatsapp_business_accounts",
+            params={"access_token": access_token},
+        ).json()
+
+        waba_id = waba["data"][0]["id"]
+
+        # 4️⃣ buscar números
+        numbers = requests.get(
+            f"https://graph.facebook.com/v19.0/{waba_id}/phone_numbers",
+            params={"access_token": access_token},
+        ).json()
+
+        saved_numbers = []
+
+        for number in numbers["data"]:
+
+            obj, created = WhatsappNumber.objects.update_or_create(
+                phone_number_id=number["id"],
+                defaults={
+                    "display_phone_number": number["display_phone_number"],
+                    "name": number.get("verified_name", "WhatsApp")
+                }
+            )
+
+            saved_numbers.append(obj.id)
+
+        return Response({
+            "status": "connected",
+            "numbers_saved": saved_numbers
+        })

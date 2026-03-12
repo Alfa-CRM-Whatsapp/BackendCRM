@@ -21,7 +21,8 @@ from core.crm.views import (
     WhatsappMessageWebhookView,
     WhatsappNumberView,
     WhatsappMessageByNumberView,
-    WhatsappMessageByNumberAndContactView
+    WhatsappMessageByNumberAndContactView,
+    WhatsappEmbeddedSignupCallbackView
 )
 
 router = DefaultRouter()
@@ -55,4 +56,8 @@ urlpatterns = [
         "api/messages/number/<int:number_id>/contact/<str:wa_id>/",
         WhatsappMessageByNumberAndContactView.as_view(),
     ),
+    path(
+        "api/whatsapp/embedded/callback/",
+        WhatsappEmbeddedSignupCallbackView.as_view()
+    )
 ]
