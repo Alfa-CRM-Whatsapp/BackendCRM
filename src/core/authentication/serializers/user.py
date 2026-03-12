@@ -5,6 +5,21 @@ class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
 
     username_field = "email"
 
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        user = self.user
+
+        data["user"] = {
+            "id": user.id,
+            "email": user.email,
+            "is_superadmin": user.is_superadmin,
+            "is_staff": user.is_staff,
+            "is_active": user.is_active,
+        }
+
+        return data
+
 class UserListSerializer(serializers.ModelSerializer):
 
     class Meta:
