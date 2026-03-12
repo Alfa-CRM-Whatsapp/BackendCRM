@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.views import APIView
 from django.http import HttpResponse, JsonResponse
-from core.crm.models import WhatsappMessage
+from core.crm.models import WhatsappMessage, WhatsappNumber, ContactWhatsapp
 from core.crm.serializers import WhatsappMessageListSerializer, WhatsappMessageCreateSerializer
 import json
 from django.conf import settings
@@ -29,12 +29,71 @@ class WhatsappMessageWebhookView(APIView):
 
         return HttpResponse("Token inválido", status=403)
 
+
     def post(self, request):
         data = request.data
 
-        with open("/tmp/webhook_log.txt", "a") as f:
-            f.write(json.dumps(data, indent=2) + "\n---\n")
-
         print("WEBHOOK RECEBIDO:", json.dumps(data, indent=2))
+
+        try:
+            entry = data["entry"][0]
+            change = entry["changes"][0]
+            value = change["value"]
+
+            metadata = value["metadata"]
+            contacts = value["contacts"][0]
+            message = value["messages"][0]
+
+            # -----------------------------
+            # Dados extraídos
+            # -----------------------------
+
+            phone_number_id = metadata["phone_number_id"]
+
+            contact_name = contacts["profile"]["name"]
+            wa_id = contacts["wa_id"]
+            number = message["from"]
+
+            message_id = message["id"]
+            message_type = message["type"]
+            messaging_product = value["messaging_product"]
+
+            # -----------------------------
+            # 1️⃣ Buscar ou criar contato
+            # -----------------------------
+
+            contact, created = ContactWhatsapp.objects.get_or_create(
+                wa_id=wa_id,
+                defaults={
+                    "profile_name": contact_name,
+                    "number": number,
+                    "phone_number_id": phone_number_id,
+                    "display_phone_number": number
+                }
+            )
+
+            # -----------------------------
+            # 2️⃣ Buscar número do WhatsApp
+            # -----------------------------
+
+            whatsapp_number = WhatsappNumber.objects.get(
+                phone_number_id=phone_number_id
+            )
+
+            # -----------------------------
+            # 3️⃣ Criar mensagem
+            # -----------------------------
+
+            WhatsappMessage.objects.create(
+                id_message=message_id,
+                type=message_type,
+                messaging_product=messaging_product,
+                contact=contact,
+                messages=message,
+                from_number=whatsapp_number
+            )
+
+        except Exception as e:
+            print("Erro ao processar webhook:", str(e))
 
         return JsonResponse({"status": "ok"})
