@@ -16,12 +16,15 @@ from core.authentication.views import (
 )
 
 from core.crm.views import (
-    ContactWhatsappView
+    ContactWhatsappView,
+    WhatsappMessageView,
+    WhatsappMessageWebhookView
 )
 
 router = DefaultRouter()
 router.register(r'users', UserViewSet, basename='user')
 router.register(r'contacts', ContactWhatsappView, basename='contact')
+router.register(r'messages', WhatsappMessageView, basename='message')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -36,4 +39,6 @@ urlpatterns = [
 
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
+
+    path("api/webhook/whatsapp/", WhatsappMessageWebhookView.as_view(), name="whatsapp-webhook"),
 ]

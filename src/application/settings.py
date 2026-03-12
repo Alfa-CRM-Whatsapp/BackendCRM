@@ -1,6 +1,7 @@
 from pathlib import Path
 from datetime import timedelta
 import os
+from termios import VEOF
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -137,3 +138,5 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_PASSWORD")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 ADMINS_EMAILS= os.getenv("ADMINS_EMAILS", "").split(",")
+
+VERIFY_TOKEN = os.getenv("VERIFY_TOKEN")
