@@ -1,7 +1,12 @@
 from core.crm.models import WhatsappMessage, ContactWhatsapp, WhatsappNumber
 from rest_framework import serializers
+from .contact import ContactWhatsappSerializer
+from .number import WhatsappNumberSerializer
 
 class WhatsappMessageListSerializer(serializers.ModelSerializer):
+
+    contact = ContactWhatsappSerializer(read_only=True)
+    from_number = WhatsappNumberSerializer(read_only=True)
 
     class Meta:
         model = WhatsappMessage
