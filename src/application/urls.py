@@ -28,10 +28,9 @@ urlpatterns = [
     path("api/token/refresh/", TokenRefreshView.as_view()),
 
     path("api/superadmin/invite/", CreateSuperAdminInviteView.as_view()),
-    path("api/superadmin/approve/<uuid:token>/", ApproveSuperAdminInviteView.as_view()),
+    path("api/superadmin/approve/", ApproveSuperAdminInviteView.as_view()),
 
     # Swagger
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
-
 ]

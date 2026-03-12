@@ -9,7 +9,7 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import render
 from django.template.loader import render_to_string
 
-from core.authentication.serializers import SuperAdminInviteSerializer
+from core.authentication.serializers import SuperAdminInviteSerializer, ApproveSuperAdminInviteSerializer
 from core.authentication.models import SuperAdminInvite
 
 User = get_user_model()
@@ -25,7 +25,10 @@ class CreateSuperAdminInviteView(APIView):
     def post(self, request):
 
         if not request.user.is_superadmin:
-            return Response({"error": "Apenas superadmins podem criar convites"}, status=403)
+            return Response(
+                {"error": "Apenas superadmins podem criar convites"},
+                status=status.HTTP_403_FORBIDDEN
+            )
 
         serializer = SuperAdminInviteSerializer(data=request.data)
 
@@ -33,13 +36,11 @@ class CreateSuperAdminInviteView(APIView):
 
             invite = serializer.save()
 
-            approve_link = f"http://localhost:8000/api/superadmin/approve/{invite.token}"
-
             html_message = render_to_string(
                 "emails/superadmin_invite.html",
                 {
                     "email": invite.email,
-                    "approve_link": approve_link
+                    "token": invite.token
                 }
             )
 
@@ -47,7 +48,7 @@ class CreateSuperAdminInviteView(APIView):
 
                 send_mail(
                     subject="Aprovação de novo SuperAdmin",
-                    message=f"Acesse o link para aprovar: {approve_link}",
+                    message=f"Token para aprovar {invite.email}: {invite.token}",
                     from_email=settings.EMAIL_HOST_USER,
                     recipient_list=[email],
                     html_message=html_message
@@ -57,36 +58,39 @@ class CreateSuperAdminInviteView(APIView):
                 "message": "Convite criado e enviado para aprovadores"
             })
 
-        return Response(serializer.errors, status=400)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class ApproveSuperAdminInviteView(APIView):
 
     permission_classes = []
 
-    def get(self, request, token):
+    @extend_schema(
+        request=ApproveSuperAdminInviteSerializer,
+        responses={200: dict}
+    )
+    def post(self, request):
+
+        serializer = ApproveSuperAdminInviteSerializer(data=request.data)
+
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        email = serializer.validated_data["email"]
+        token = serializer.validated_data["token"]
 
         try:
-            invite = SuperAdminInvite.objects.get(token=token)
+            invite = SuperAdminInvite.objects.get(email=email, token=token)
         except SuperAdminInvite.DoesNotExist:
-            return render(request, "invite_invalid.html")
+            return Response(
+                {"error": "Token ou email inválido"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         if invite.approved:
-            return render(request, "invite_used.html")
-
-        return render(request, "approve_invite.html", {
-            "token": token,
-            "email": invite.email
-        })
-
-    def post(self, request, token):
-
-        try:
-            invite = SuperAdminInvite.objects.get(token=token)
-        except SuperAdminInvite.DoesNotExist:
-            return render(request, "invite_invalid.html")
-
-        if invite.approved:
-            return render(request, "invite_used.html")
+            return Response(
+                {"error": "Convite já foi aprovado"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         invite.approved = True
         invite.used = True
@@ -100,6 +104,7 @@ class ApproveSuperAdminInviteView(APIView):
             is_superuser=True
         )
 
-        return render(request, "invite_success.html", {
+        return Response({
+            "message": "SuperAdmin criado com sucesso",
             "email": user.email
         })
