@@ -22,7 +22,9 @@ from core.crm.views import (
     WhatsappNumberView,
     WhatsappMessageByNumberView,
     WhatsappMessageByNumberAndContactView,
-    WhatsappEmbeddedSignupCallbackView
+    VerifyWhatsappNumber,
+    RegisterWhatsappNumber,
+    WhatsappConversationsByNumberView
 )
 
 router = DefaultRouter()
@@ -57,7 +59,15 @@ urlpatterns = [
         WhatsappMessageByNumberAndContactView.as_view(),
     ),
     path(
-        "api/whatsapp/embedded/callback/",
-        WhatsappEmbeddedSignupCallbackView.as_view()
-    )
+        "api/verify-number/",
+        VerifyWhatsappNumber.as_view(),
+    ),
+    path(
+        "api/register-number/",
+        RegisterWhatsappNumber.as_view(),
+    ),
+    path(
+        "api/conversations/number/<int:number_id>/",
+        WhatsappConversationsByNumberView.as_view(),
+    ),
 ]

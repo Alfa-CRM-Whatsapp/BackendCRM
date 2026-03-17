@@ -14,4 +14,9 @@ class SuperAdminInviteSerializer(serializers.ModelSerializer):
     
 class ApproveSuperAdminInviteSerializer(serializers.Serializer):
     email = serializers.EmailField()
-    token = serializers.UUIDField()
+    token = serializers.RegexField(
+        regex=r'^\d{6}$',
+        error_messages={
+            "invalid": "Token deve ter 6 dígitos numéricos"
+        }
+    )

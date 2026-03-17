@@ -125,7 +125,7 @@ class WhatsappMessageByNumberAndContactView(ListAPIView):
             WhatsappMessage.objects
             .filter(
                 from_number_id=number_id,
-                contact__wa_id=wa_id
+                contact__display_phone_number=wa_id
             )
             .select_related("contact", "from_number")
             .order_by("id")
@@ -197,3 +197,108 @@ class WhatsappEmbeddedSignupCallbackView(APIView):
             "status": "connected",
             "numbers_saved": saved_numbers
         })
+
+
+class RegisterWhatsappNumber(APIView):
+
+    def post(self, request):
+
+        phone = request.data["phone"]
+
+        r = requests.post(
+            f"https://graph.facebook.com/v19.0/{settings.WABA_ID}/phone_numbers",
+            headers={
+                "Authorization": f"Bearer {settings.ACESS_TOKEN}"
+            },
+            data={
+                "cc": "55",
+                "phone_number": phone,
+                "verified_name": "CRM"
+            }
+        )
+
+        data = r.json()
+
+        if "id" not in data:
+            return Response(data, status=400)
+
+        number = WhatsappNumber.objects.create(
+            phone=phone,
+            phone_number_id=data["id"],
+            verified=False
+        )
+
+        print(number + "Numero Criado")
+
+        # solicitar código
+        requests.post(
+            f"https://graph.facebook.com/v19.0/{data['id']}/request_code",
+            headers={
+                "Authorization": f"Bearer {settings.META_TOKEN}"
+            },
+            data={"code_method": "SMS"}
+        )
+
+        return Response({
+            "status": "code_sent",
+            "phone_number_id": data["id"]
+        })
+    
+class VerifyWhatsappNumber(APIView):
+
+    def post(self, request):
+
+        phone_number_id = request.data["phone_number_id"]
+        code = request.data["code"]
+
+        r = requests.post(
+            f"https://graph.facebook.com/v19.0/{phone_number_id}/verify_code",
+            headers={
+                "Authorization": f"Bearer {settings.META_TOKEN}"
+            },
+            data={
+                "code": code
+            }
+        )
+
+        data = r.json()
+
+        if data.get("success"):
+
+            number = WhatsappNumber.objects.get(
+                phone_number_id=phone_number_id
+            )
+
+            number.verified = True
+            number.save()
+
+        return Response(data)
+    
+class WhatsappConversationsByNumberView(APIView):
+
+    def get(self, request, number_id):
+
+        contacts = (
+            WhatsappMessage.objects
+            .filter(from_number_id=number_id)
+            .select_related("contact", "from_number")
+            .values(
+                "contact__id",
+                "contact__profile_name",
+                "contact__number",
+                "from_number__display_phone_number"
+            )
+            .distinct()
+        )
+
+        data = [
+            {
+                "contact_id": c["contact__id"],
+                "profile_name": c["contact__profile_name"],
+                "number_sender": c["contact__number"],
+                "number_receive": c["from_number__display_phone_number"] 
+            }
+            for c in contacts
+        ]
+
+        return Response(data)
