@@ -35,39 +35,17 @@ router.register(r'numbers', WhatsappNumberView, basename='number')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-
     path('api/', include(router.urls)),
-
     path("api/token/", EmailTokenObtainPairView.as_view()),
     path("api/token/refresh/", TokenRefreshView.as_view()),
-
     path("api/superadmin/invite/", CreateSuperAdminInviteView.as_view()),
     path("api/superadmin/approve/", ApproveSuperAdminInviteView.as_view()),
-
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
-
     path("api/webhook/whatsapp/", WhatsappMessageWebhookView.as_view(), name="whatsapp-webhook"),
-
-      path(
-        "api/messages/number/<int:number_id>/",
-        WhatsappMessageByNumberView.as_view()
-    ),
-
-    path(
-        "api/messages/number/<int:number_id>/contact/<str:wa_id>/",
-        WhatsappMessageByNumberAndContactView.as_view(),
-    ),
-    path(
-        "api/verify-number/",
-        VerifyWhatsappNumber.as_view(),
-    ),
-    path(
-        "api/register-number/",
-        RegisterWhatsappNumber.as_view(),
-    ),
-    path(
-        "api/conversations/number/<int:number_id>/",
-        WhatsappConversationsByNumberView.as_view(),
-    ),
+    path("api/messages/number/<int:number_id>/", WhatsappMessageByNumberView.as_view()),
+    path("api/messages/number/<int:number_id>/contact/<str:wa_id>/", WhatsappMessageByNumberAndContactView.as_view()),
+    path("api/verify-number/", VerifyWhatsappNumber.as_view()),
+    path("api/register-number/", RegisterWhatsappNumber.as_view()),
+    path("api/conversations/number/<int:number_id>/", WhatsappConversationsByNumberView.as_view(),),
 ]

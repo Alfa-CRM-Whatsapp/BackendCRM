@@ -47,10 +47,6 @@ class WhatsappMessageWebhookView(APIView):
             contacts = value["contacts"][0]
             message = value["messages"][0]
 
-            # -----------------------------
-            # Dados extraídos
-            # -----------------------------
-
             phone_number_id = metadata["phone_number_id"]
 
             contact_name = contacts["profile"]["name"]
@@ -60,10 +56,6 @@ class WhatsappMessageWebhookView(APIView):
             message_id = message["id"]
             message_type = message["type"]
             messaging_product = value["messaging_product"]
-
-            # -----------------------------
-            # 1️⃣ Buscar ou criar contato
-            # -----------------------------
 
             contact, created = ContactWhatsapp.objects.get_or_create(
                 wa_id=wa_id,
@@ -75,17 +67,9 @@ class WhatsappMessageWebhookView(APIView):
                 }
             )
 
-            # -----------------------------
-            # 2️⃣ Buscar número do WhatsApp
-            # -----------------------------
-
             whatsapp_number = WhatsappNumber.objects.get(
                 phone_number_id=phone_number_id
             )
-
-            # -----------------------------
-            # 3️⃣ Criar mensagem
-            # -----------------------------
 
             WhatsappMessage.objects.create(
                 id_message=message_id,
@@ -130,74 +114,6 @@ class WhatsappMessageByNumberAndContactView(ListAPIView):
             .select_related("contact", "from_number")
             .order_by("id")
         )
-
-class WhatsappEmbeddedSignupCallbackView(APIView):
-
-    def get(self, request):
-
-        code = request.GET.get("code")
-
-        if not code:
-            return Response({"error": "code não encontrado"}, status=400)
-
-        # 1️⃣ trocar code por access_token
-        token_response = requests.get(
-            "https://graph.facebook.com/v19.0/oauth/access_token",
-            params={
-                "client_id": settings.META_APP_ID,
-                "client_secret": settings.META_APP_SECRET,
-                "redirect_uri": settings.META_REDIRECT_URI,
-                "code": code,
-            },
-        )
-
-        token_data = token_response.json()
-        access_token = token_data.get("access_token")
-
-        if not access_token:
-            return Response({"error": token_data}, status=400)
-
-        # 2️⃣ buscar businesses do usuário
-        businesses = requests.get(
-            "https://graph.facebook.com/v19.0/me/businesses",
-            params={"access_token": access_token},
-        ).json()
-
-        business_id = businesses["data"][0]["id"]
-
-        # 3️⃣ buscar WABA
-        waba = requests.get(
-            f"https://graph.facebook.com/v19.0/{business_id}/owned_whatsapp_business_accounts",
-            params={"access_token": access_token},
-        ).json()
-
-        waba_id = waba["data"][0]["id"]
-
-        # 4️⃣ buscar números
-        numbers = requests.get(
-            f"https://graph.facebook.com/v19.0/{waba_id}/phone_numbers",
-            params={"access_token": access_token},
-        ).json()
-
-        saved_numbers = []
-
-        for number in numbers["data"]:
-
-            obj, created = WhatsappNumber.objects.update_or_create(
-                phone_number_id=number["id"],
-                defaults={
-                    "display_phone_number": number["display_phone_number"],
-                    "name": number.get("verified_name", "WhatsApp")
-                }
-            )
-
-            saved_numbers.append(obj.id)
-
-        return Response({
-            "status": "connected",
-            "numbers_saved": saved_numbers
-        })
-
 
 class RegisterWhatsappNumber(APIView):
 
