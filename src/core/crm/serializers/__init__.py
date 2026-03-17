@@ -1,3 +1,3 @@
 from .contact import ContactWhatsappListSerializer
-from .message import WhatsappMessageListSerializer, WhatsappMessageCreateSerializer
+from .message import WhatsappMessageListSerializer, WhatsappMessageCreateSerializer, OutboundWhatsappMessageListSerializer, OutboundWhatsappMessageCreateSerializer
 from .number import WhatsappNumberSerializer

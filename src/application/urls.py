@@ -24,7 +24,8 @@ from core.crm.views import (
     WhatsappMessageByNumberAndContactView,
     VerifyWhatsappNumber,
     RegisterWhatsappNumber,
-    WhatsappConversationsByNumberView
+    WhatsappConversationsByNumberView,
+    OutboundWhatsappMessageViewSet
 )
 
 router = DefaultRouter()
@@ -32,6 +33,7 @@ router.register(r'users', UserViewSet, basename='user')
 router.register(r'contacts', ContactWhatsappView, basename='contact')
 router.register(r'messages', WhatsappMessageView, basename='message')
 router.register(r'numbers', WhatsappNumberView, basename='number')
+router.register(r'sended-messages', OutboundWhatsappMessageViewSet, basename='sended-message')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.views import APIView
 from django.http import HttpResponse, JsonResponse
-from core.crm.models import WhatsappMessage, WhatsappNumber, ContactWhatsapp
+from core.crm.models import WhatsappMessage, WhatsappNumber, ContactWhatsapp, OutboundWhatsappMessage
 from core.crm.serializers import WhatsappMessageListSerializer, WhatsappMessageCreateSerializer
 import json
 from django.conf import settings
@@ -32,7 +32,6 @@ class WhatsappMessageWebhookView(APIView):
 
         return HttpResponse("Token inválido", status=403)
 
-
     def post(self, request):
         data = request.data
 
@@ -43,45 +42,74 @@ class WhatsappMessageWebhookView(APIView):
             change = entry["changes"][0]
             value = change["value"]
 
-            metadata = value["metadata"]
-            contacts = value["contacts"][0]
-            message = value["messages"][0]
-
-            phone_number_id = metadata["phone_number_id"]
-
-            contact_name = contacts["profile"]["name"]
-            wa_id = contacts["wa_id"]
-            number = message["from"]
-
-            message_id = message["id"]
-            message_type = message["type"]
-            messaging_product = value["messaging_product"]
-
-            contact, created = ContactWhatsapp.objects.get_or_create(
-                wa_id=wa_id,
-                defaults={
-                    "profile_name": contact_name,
-                    "number": number,
-                    "phone_number_id": phone_number_id,
-                    "display_phone_number": number
-                }
-            )
+            metadata = value.get("metadata", {})
+            phone_number_id = metadata.get("phone_number_id")
 
             whatsapp_number = WhatsappNumber.objects.get(
                 phone_number_id=phone_number_id
             )
 
-            WhatsappMessage.objects.create(
-                id_message=message_id,
-                type=message_type,
-                messaging_product=messaging_product,
-                contact=contact,
-                messages=message,
-                from_number=whatsapp_number
-            )
+            # ==========================================
+            # 📩 MENSAGEM RECEBIDA (INBOUND)
+            # ==========================================
+            if "messages" in value:
+
+                message = value["messages"][0]
+                contact_data = value["contacts"][0]
+                breakpoint()
+
+                contact_name = contact_data["profile"]["name"]
+                wa_id = contact_data["wa_id"]
+                number = message["from"]
+
+                message_id = message["id"]
+                message_type = message["type"]
+                messaging_product = value["messaging_product"]
+
+                contact, _ = ContactWhatsapp.objects.get_or_create(
+                    wa_id=wa_id,
+                    defaults={
+                        "profile_name": contact_name,
+                        "number": number,
+                        "phone_number_id": phone_number_id,
+                        "display_phone_number": number
+                    }
+                )
+
+                WhatsappMessage.objects.create(
+                    id_message=message_id,
+                    type=message_type,
+                    messaging_product=messaging_product,
+                    contact=contact,
+                    messages=message,
+                    from_number=whatsapp_number
+                )
+
+                print("📩 Mensagem recebida salva")
+
+            # ==========================================
+            # 📬 STATUS DE MENSAGEM ENVIADA (OUTBOUND)
+            # ==========================================
+            elif "statuses" in value:
+
+                status_data = value["statuses"][0]
+
+                message_id = status_data["id"]
+                status_value = status_data["status"]
+
+                updated = OutboundWhatsappMessage.objects.filter(
+                    id_message=message_id
+                ).update(
+                    status=status_value
+                )
+
+                print(f"📬 Status atualizado: {message_id} -> {status_value} | updated={updated}")
+
+            else:
+                print("⚠️ Tipo de webhook desconhecido")
 
         except Exception as e:
-            print("Erro ao processar webhook:", str(e))
+            print("❌ Erro ao processar webhook:", str(e))
 
         return JsonResponse({"status": "ok"})
 
