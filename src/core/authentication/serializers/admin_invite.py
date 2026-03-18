@@ -2,7 +2,7 @@ from rest_framework import serializers
 from core.authentication.models import SuperAdminInvite
 from django.contrib.auth.hashers import make_password
 
-class SuperAdminInviteSerializer(serializers.ModelSerializer):
+class SuperAdminInviteCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SuperAdminInvite
@@ -12,6 +12,25 @@ class SuperAdminInviteSerializer(serializers.ModelSerializer):
         validated_data["password"] = make_password(validated_data["password"])
         return super().create(validated_data)
     
+class SuperAdminInviteListSerializer(serializers.ModelSerializer):
+
+    approved_by_email = serializers.CharField(
+        source="approved_by.email",
+        read_only=True
+    )
+
+    class Meta:
+        model = SuperAdminInvite
+        fields = [
+            "id",
+            "email",
+            "approved",
+            "approved_by",
+            "approved_by_email",
+            "used",
+            "created_at",
+        ]
+
 class ApproveSuperAdminInviteSerializer(serializers.Serializer):
     email = serializers.EmailField()
     token = serializers.RegexField(

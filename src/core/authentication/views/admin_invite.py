@@ -3,24 +3,35 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.conf import settings
 from django.core.mail import send_mail
-from rest_framework import status
+from rest_framework import status, viewsets
 from drf_spectacular.utils import extend_schema
 from django.contrib.auth import get_user_model
 from django.template.loader import render_to_string
 
-from core.authentication.serializers import SuperAdminInviteSerializer, ApproveSuperAdminInviteSerializer
+from core.authentication.serializers import ApproveSuperAdminInviteSerializer
 from core.authentication.models import SuperAdminInvite
+from core.authentication.serializers import (
+    SuperAdminInviteCreateSerializer,
+    SuperAdminInviteListSerializer
+)
 
 User = get_user_model()
 
-class CreateSuperAdminInviteView(APIView):
+class SuperAdminInviteViewSet(viewsets.ModelViewSet):
+    queryset = SuperAdminInvite.objects.all().order_by("-created_at")
     permission_classes = [IsAuthenticated]
 
-    @extend_schema(
-        request=SuperAdminInviteSerializer,
-        responses={200: dict}
-    )
-    def post(self, request):
+    def get_serializer_class(self):
+        if self.action == "create":
+            return SuperAdminInviteCreateSerializer
+        return SuperAdminInviteListSerializer
+
+    def get_queryset(self):
+        if self.request.user.is_superadmin:
+            return SuperAdminInvite.objects.all().order_by("-created_at")
+        return SuperAdminInvite.objects.none()
+
+    def create(self, request, *args, **kwargs):
 
         if not request.user.is_superadmin:
             return Response(
@@ -28,51 +39,49 @@ class CreateSuperAdminInviteView(APIView):
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        serializer = SuperAdminInviteSerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
 
-        if serializer.is_valid():
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-            email = serializer.validated_data["email"]
+        email = serializer.validated_data["email"]
 
-            if User.objects.filter(email=email).exists():
-                return Response(
-                    {"error": "Já existe um usuário com este email"},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-            if SuperAdminInvite.objects.filter(email=email, used=False).exists():
-                return Response(
-                    {"error": "Já existe um convite pendente para este email"},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-            invite = serializer.save()
-
-            html_message = render_to_string(
-                "emails/superadmin_invite.html",
-                {
-                    "email": invite.email,
-                    "token": invite.token
-                }
+        if User.objects.filter(email=email).exists():
+            return Response(
+                {"error": "Já existe um usuário com este email"},
+                status=status.HTTP_400_BAD_REQUEST
             )
 
-            for email_admin in settings.ADMINS_EMAILS:
+        if SuperAdminInvite.objects.filter(email=email, used=False).exists():
+            return Response(
+                {"error": "Já existe um convite pendente para este email"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-                send_mail(
-                    subject="Aprovação de novo SuperAdmin",
-                    message=f"Token para aprovar {invite.email}: {invite.token}",
-                    from_email=settings.EMAIL_HOST_USER,
-                    recipient_list=[email_admin],
-                    html_message=html_message
-                )
+        invite = serializer.save()
 
-            return Response({
-                "message": "Convite criado e enviado para aprovadores",
-                "code_status": status.HTTP_200_OK,
-                "email": invite.email
-            })
+        html_message = render_to_string(
+            "emails/superadmin_invite.html",
+            {
+                "email": invite.email,
+                "token": invite.token
+            }
+        )
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        for email_admin in settings.ADMINS_EMAILS:
+            send_mail(
+                subject="Aprovação de novo SuperAdmin",
+                message=f"Token para aprovar {invite.email}: {invite.token}",
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[email_admin],
+                html_message=html_message
+            )
+
+        return Response({
+            "message": "Convite criado e enviado para aprovadores",
+            "data": SuperAdminInviteListSerializer(invite).data,
+            "code_status": status.HTTP_201_CREATED
+        })
     
 class ApproveSuperAdminInviteView(APIView):
 

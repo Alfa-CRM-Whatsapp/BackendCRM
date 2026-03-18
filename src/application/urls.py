@@ -11,8 +11,8 @@ from drf_spectacular.views import (
 from core.authentication.views import (
     EmailTokenObtainPairView,
     UserViewSet,
-    CreateSuperAdminInviteView,
     ApproveSuperAdminInviteView,
+    SuperAdminInviteViewSet
 )
 
 from core.crm.views import (
@@ -25,7 +25,7 @@ from core.crm.views import (
     VerifyWhatsappNumber,
     RegisterWhatsappNumber,
     WhatsappConversationsByNumberView,
-    OutboundWhatsappMessageViewSet
+    OutboundWhatsappMessageViewSet,
 )
 
 router = DefaultRouter()
@@ -34,13 +34,14 @@ router.register(r'contacts', ContactWhatsappView, basename='contact')
 router.register(r'messages', WhatsappMessageView, basename='message')
 router.register(r'numbers', WhatsappNumberView, basename='number')
 router.register(r'sended-messages', OutboundWhatsappMessageViewSet, basename='sended-message')
+router.register(r'superadmin-invites', SuperAdminInviteViewSet, basename='superadmin-invite')
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
     path("api/token/", EmailTokenObtainPairView.as_view()),
     path("api/token/refresh/", TokenRefreshView.as_view()),
-    path("api/superadmin/invite/", CreateSuperAdminInviteView.as_view()),
     path("api/superadmin/approve/", ApproveSuperAdminInviteView.as_view()),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
