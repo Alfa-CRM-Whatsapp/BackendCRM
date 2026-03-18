@@ -9,5 +9,6 @@ class WhatsappNumberSerializer(serializers.ModelSerializer):
             'id',
             'display_phone_number',
             'phone_number_id',
-            'name'
+            'name',
+            'verified',
         ]

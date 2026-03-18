@@ -24,10 +24,10 @@ from core.crm.views import (
     WhatsappMessageByNumberAndContactView,
     VerifyWhatsappNumber,
     RegisterWhatsappNumber,
-    WhatsappConversationsByNumberView,
     OutboundWhatsappMessageViewSet,
     ChatViewSet,
-    MyChatsViewSet
+    MyChatsViewSet,
+    WhatsappMessageWebhookView
 )
 
 router = DefaultRouter()
@@ -52,6 +52,5 @@ urlpatterns = [
     path("api/messages/number/<int:number_id>/contact/<str:wa_id>/", WhatsappMessageByNumberAndContactView.as_view()),
     path("api/verify-number/", VerifyWhatsappNumber.as_view()),
     path("api/register-number/", RegisterWhatsappNumber.as_view()),
-    path("api/conversations/number/<int:number_id>/", WhatsappConversationsByNumberView.as_view(),),
     path("api/my-chats/", MyChatsViewSet.as_view({"get": "list"}), name="my-chats"),
 ]
