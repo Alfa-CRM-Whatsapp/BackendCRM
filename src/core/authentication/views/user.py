@@ -1,5 +1,5 @@
 from rest_framework_simplejwt.views import TokenObtainPairView
-from core.authentication.serializers import EmailTokenObtainPairSerializer, UserListSerializer, UserCreateSerializer
+from core.authentication.serializers import EmailTokenObtainPairSerializer, UserListSerializer, UserCreateSerializer, UserPreferencesSerializer
 from rest_framework import viewsets
 
 class EmailTokenObtainPairView(TokenObtainPairView):
@@ -14,3 +14,7 @@ class UserViewSet(viewsets.ModelViewSet):
         elif self.action == 'create':
             return UserCreateSerializer
         return UserListSerializer
+    
+class UserPreferencesViewSet(viewsets.ModelViewSet):
+    queryset = UserPreferencesSerializer.Meta.model.objects.all()
+    serializer_class = UserPreferencesSerializer

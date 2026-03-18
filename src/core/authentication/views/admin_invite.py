@@ -9,7 +9,7 @@ from django.contrib.auth import get_user_model
 from django.template.loader import render_to_string
 
 from core.authentication.serializers import ApproveSuperAdminInviteSerializer
-from core.authentication.models import SuperAdminInvite
+from core.authentication.models import SuperAdminInvite, UserPreferences
 from core.authentication.serializers import (
     SuperAdminInviteCreateSerializer,
     SuperAdminInviteListSerializer
@@ -119,6 +119,8 @@ class ApproveSuperAdminInviteView(APIView):
             is_staff=True,
             is_superuser=True
         )
+
+        UserPreferences.objects.create(user=user)
 
         return Response({
             "message": "SuperAdmin criado com sucesso",
