@@ -39,6 +39,7 @@ distribution = true
 
 [tool.pdm.scripts]
 dev = "python src/manage.py runserver"
+devc = "bash -c 'clear && pdm run python src/manage.py runserver'"
 devweb = "pdm run uvicorn config.asgi:application --reload --port 8000"
 runserver = "python src/manage.py runserver"
 createsuperuser = "python src/manage.py createsuperuser"

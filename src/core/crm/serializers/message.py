@@ -16,7 +16,8 @@ class WhatsappMessageListSerializer(serializers.ModelSerializer):
             'messaging_product',
             'contact',
             'messages',
-            'from_number'
+            'from_number',
+            'created_at',
         ]
 
 class WhatsappMessageCreateSerializer(serializers.Serializer):
@@ -39,7 +40,7 @@ class OutboundWhatsappMessageListSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'id_message',
-            'message_text',
+            'message',
             'status',
             'contact',
             'contact_name',
@@ -61,13 +62,12 @@ class OutboundWhatsappMessageCreateSerializer(serializers.Serializer):
         queryset=WhatsappNumber.objects.all()
     )
 
-    message_text = serializers.CharField()
+    message = serializers.JSONField()
 
     def create(self, validated_data):
-        # ⚠️ id_message e status serão definidos depois da resposta da API
         return OutboundWhatsappMessage.objects.create(
             contact=validated_data['contact'],
             from_number=validated_data['from_number'],
-            message_text=validated_data['message_text'],
+            message=validated_data['message'],
             status="sent"
         )

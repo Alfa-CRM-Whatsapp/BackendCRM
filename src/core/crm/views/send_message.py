@@ -10,6 +10,7 @@ from core.crm.serializers import (
     OutboundWhatsappMessageCreateSerializer
 )
 
+
 class OutboundWhatsappMessageViewSet(viewsets.ModelViewSet):
 
     queryset = OutboundWhatsappMessage.objects.all().order_by('-created_at')
@@ -28,8 +29,8 @@ class OutboundWhatsappMessageViewSet(viewsets.ModelViewSet):
 
         contact = serializer.validated_data.get("contact")
         whatsapp_number = serializer.validated_data["from_number"]
-        message_text = serializer.validated_data["message_text"]
-        breakpoint()
+        message_payload = serializer.validated_data.get("message")
+
         if not contact:
             return Response(
                 {"error": "O campo 'contact' é obrigatório"},
@@ -49,10 +50,7 @@ class OutboundWhatsappMessageViewSet(viewsets.ModelViewSet):
         payload = {
             "messaging_product": "whatsapp",
             "to": to,
-            "type": "text",
-            "text": {
-                "body": message_text
-            }
+            **message_payload
         }
 
         try:
@@ -64,11 +62,22 @@ class OutboundWhatsappMessageViewSet(viewsets.ModelViewSet):
 
             message_id = response_data["messages"][0]["id"]
 
+            # =========================
+            # 🔥 SALVANDO IGUAL INBOUND
+            # =========================
+
+            message_json = {
+                "id": message_id,
+                "type": payload["type"],
+                "timestamp": str(int(response.elapsed.total_seconds() * 1000)),
+                **message_payload
+            }
+
             message = OutboundWhatsappMessage.objects.create(
                 id_message=message_id,
                 contact=contact,
                 from_number=whatsapp_number,
-                message_text=message_text,
+                message=message_json,  # 🔥 JSON COMPLETO
                 status="sent",
                 raw_response=response_data
             )

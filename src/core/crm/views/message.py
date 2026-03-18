@@ -56,7 +56,6 @@ class WhatsappMessageWebhookView(APIView):
 
                 message = value["messages"][0]
                 contact_data = value["contacts"][0]
-                breakpoint()
 
                 contact_name = contact_data["profile"]["name"]
                 wa_id = contact_data["wa_id"]

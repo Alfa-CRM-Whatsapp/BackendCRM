@@ -8,6 +8,7 @@ class WhatsappMessage(models.Model):
     contact = models.ForeignKey(ContactWhatsapp, on_delete=models.CASCADE, related_name='messages')
     messages = models.JSONField()
     from_number = models.ForeignKey(WhatsappNumber, on_delete=models.CASCADE, related_name='messages')
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f'Message {self.id_message} for Contact {self.contact.id}'
@@ -36,7 +37,7 @@ class OutboundWhatsappMessage(models.Model):
         related_name='outbound_messages'
     )
 
-    message_text = models.TextField()
+    message = models.JSONField()
 
     status = models.CharField(
         max_length=20,
