@@ -4,7 +4,11 @@ from django.conf import settings
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 
-from core.crm.models import WhatsappNumber, OutboundWhatsappMessage
+from core.crm.models import (
+    WhatsappNumber,
+    OutboundWhatsappMessage,
+    Chat
+)
 from core.crm.serializers import (
     OutboundWhatsappMessageListSerializer,
     OutboundWhatsappMessageCreateSerializer
@@ -63,12 +67,19 @@ class OutboundWhatsappMessageViewSet(viewsets.ModelViewSet):
             message_id = response_data["messages"][0]["id"]
 
             # =========================
+            # 🔥 GARANTE CHAT
+            # =========================
+            chat, _ = Chat.objects.get_or_create(
+                contact=contact,
+                from_number=whatsapp_number
+            )
+
+            # =========================
             # 🔥 SALVANDO IGUAL INBOUND
             # =========================
-
             message_json = {
                 "id": message_id,
-                "type": payload["type"],
+                "type": payload.get("type"),
                 "timestamp": str(int(response.elapsed.total_seconds() * 1000)),
                 **message_payload
             }
@@ -77,7 +88,8 @@ class OutboundWhatsappMessageViewSet(viewsets.ModelViewSet):
                 id_message=message_id,
                 contact=contact,
                 from_number=whatsapp_number,
-                message=message_json,  # 🔥 JSON COMPLETO
+                chat=chat,
+                message=message_json,
                 status="sent",
                 raw_response=response_data
             )

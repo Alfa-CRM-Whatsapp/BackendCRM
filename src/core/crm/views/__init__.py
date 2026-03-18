@@ -3,3 +3,4 @@ from .message import WhatsappMessageView, WhatsappMessageWebhookView, WhatsappMe
 from .number import WhatsappNumberView
 from .send_message import OutboundWhatsappMessageViewSet
 from .messages_by_contact import WhatsappMessageByNumberAndContactView
+from .chat import ChatViewSet, MyChatsViewSet

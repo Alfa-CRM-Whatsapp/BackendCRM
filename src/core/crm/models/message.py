@@ -1,18 +1,38 @@
 from django.db import models
 from core.crm.models import ContactWhatsapp, WhatsappNumber
+from .chat import Chat  # ajuste o import conforme seu projeto
 
 class WhatsappMessage(models.Model):
     id_message = models.CharField(max_length=255, unique=True)
     type = models.CharField(max_length=50)
     messaging_product = models.CharField(max_length=100)
-    contact = models.ForeignKey(ContactWhatsapp, on_delete=models.CASCADE, related_name='messages')
+
+    contact = models.ForeignKey(
+        ContactWhatsapp,
+        on_delete=models.CASCADE,
+        related_name='messages'
+    )
+
+    from_number = models.ForeignKey(
+        WhatsappNumber,
+        on_delete=models.CASCADE,
+        related_name='messages'
+    )
+
+    chat = models.ForeignKey(
+        Chat,
+        on_delete=models.CASCADE,
+        related_name='inbound_messages',
+        null=True,
+        blank=True
+    )
+
     messages = models.JSONField()
-    from_number = models.ForeignKey(WhatsappNumber, on_delete=models.CASCADE, related_name='messages')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f'Message {self.id_message} for Contact {self.contact.id}'
-    
+
 
 class OutboundWhatsappMessage(models.Model):
 
@@ -35,6 +55,14 @@ class OutboundWhatsappMessage(models.Model):
         WhatsappNumber,
         on_delete=models.CASCADE,
         related_name='outbound_messages'
+    )
+
+    chat = models.ForeignKey(
+        Chat,
+        on_delete=models.CASCADE,
+        related_name='outbound_messages',
+        null=True,
+        blank=True
     )
 
     message = models.JSONField()

@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.views import APIView
 from django.http import HttpResponse, JsonResponse
-from core.crm.models import WhatsappMessage, WhatsappNumber, ContactWhatsapp, OutboundWhatsappMessage
+from core.crm.models import WhatsappMessage, WhatsappNumber, ContactWhatsapp, OutboundWhatsappMessage, Chat
 from core.crm.serializers import WhatsappMessageListSerializer, WhatsappMessageCreateSerializer
 import json
 from django.conf import settings
@@ -70,18 +70,28 @@ class WhatsappMessageWebhookView(APIView):
                     defaults={
                         "profile_name": contact_name,
                         "number": number,
-                        "phone_number_id": phone_number_id,
-                        "display_phone_number": number
                     }
                 )
 
+                # =========================
+                # 🔥 GARANTE CHAT
+                # =========================
+                chat, _ = Chat.objects.get_or_create(
+                    contact=contact,
+                    from_number=whatsapp_number
+                )
+
+                # =========================
+                # 💾 SALVA MENSAGEM
+                # =========================
                 WhatsappMessage.objects.create(
                     id_message=message_id,
                     type=message_type,
                     messaging_product=messaging_product,
                     contact=contact,
-                    messages=message,
-                    from_number=whatsapp_number
+                    from_number=whatsapp_number,
+                    chat=chat,  # 👈 AQUI
+                    messages=message
                 )
 
                 print("📩 Mensagem recebida salva")
@@ -136,7 +146,7 @@ class WhatsappMessageByNumberAndContactView(ListAPIView):
             WhatsappMessage.objects
             .filter(
                 from_number_id=number_id,
-                contact__display_phone_number=wa_id
+                contact__wa_id=wa_id
             )
             .select_related("contact", "from_number")
             .order_by("id")

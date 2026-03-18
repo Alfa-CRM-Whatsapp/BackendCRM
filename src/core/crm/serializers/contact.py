@@ -6,8 +6,6 @@ class ContactWhatsappListSerializer(serializers.ModelSerializer):
         model = ContactWhatsapp
         fields = [
             'id', 
-            'phone_number_id',
-            'display_phone_number',
             'profile_name',
             'wa_id',
             'number'

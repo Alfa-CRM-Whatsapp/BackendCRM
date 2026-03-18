@@ -26,6 +26,8 @@ from core.crm.views import (
     RegisterWhatsappNumber,
     WhatsappConversationsByNumberView,
     OutboundWhatsappMessageViewSet,
+    ChatViewSet,
+    MyChatsViewSet
 )
 
 router = DefaultRouter()
@@ -35,7 +37,7 @@ router.register(r'messages', WhatsappMessageView, basename='message')
 router.register(r'numbers', WhatsappNumberView, basename='number')
 router.register(r'sended-messages', OutboundWhatsappMessageViewSet, basename='sended-message')
 router.register(r'superadmin-invites', SuperAdminInviteViewSet, basename='superadmin-invite')
-
+router.register(r'chats', ChatViewSet, basename='chat')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -51,4 +53,5 @@ urlpatterns = [
     path("api/verify-number/", VerifyWhatsappNumber.as_view()),
     path("api/register-number/", RegisterWhatsappNumber.as_view()),
     path("api/conversations/number/<int:number_id>/", WhatsappConversationsByNumberView.as_view(),),
+    path("api/my-chats/", MyChatsViewSet.as_view({"get": "list"}), name="my-chats"),
 ]
