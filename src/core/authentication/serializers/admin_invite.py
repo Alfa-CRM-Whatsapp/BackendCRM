@@ -39,3 +39,6 @@ class ApproveSuperAdminInviteSerializer(serializers.Serializer):
             "invalid": "Token deve ter 6 dígitos numéricos"
         }
     )
+
+class ResendSuperAdminInviteSerializer(serializers.Serializer):
+    email = serializers.EmailField()

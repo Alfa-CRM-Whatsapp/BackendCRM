@@ -13,7 +13,8 @@ from core.authentication.views import (
     UserViewSet,
     ApproveSuperAdminInviteView,
     SuperAdminInviteViewSet,
-    UserPreferencesViewSet
+    UserPreferencesViewSet,
+    ResendSuperAdminInviteTokenView
 )
 
 from core.crm.views import (
@@ -55,4 +56,5 @@ urlpatterns = [
     path("api/verify-number/", VerifyWhatsappNumber.as_view()),
     path("api/register-number/", RegisterWhatsappNumber.as_view()),
     path("api/my-chats/", MyChatsViewSet.as_view({"get": "list"}), name="my-chats"),
+    path('api/resend-token/', ResendSuperAdminInviteTokenView.as_view(), name='resend-token'),  
 ]

@@ -1,2 +1,2 @@
 from .user import EmailTokenObtainPairSerializer, UserListSerializer, UserCreateSerializer, UserPreferencesSerializer
-from .admin_invite import ApproveSuperAdminInviteSerializer, SuperAdminInviteCreateSerializer, SuperAdminInviteListSerializer
+from .admin_invite import ApproveSuperAdminInviteSerializer, SuperAdminInviteCreateSerializer, SuperAdminInviteListSerializer, ResendSuperAdminInviteSerializer

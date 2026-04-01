@@ -7,12 +7,14 @@ from rest_framework import status, viewsets
 from drf_spectacular.utils import extend_schema
 from django.contrib.auth import get_user_model
 from django.template.loader import render_to_string
+import secrets
 
 from core.authentication.serializers import ApproveSuperAdminInviteSerializer
 from core.authentication.models import SuperAdminInvite, UserPreferences
 from core.authentication.serializers import (
     SuperAdminInviteCreateSerializer,
-    SuperAdminInviteListSerializer
+    SuperAdminInviteListSerializer,
+    ResendSuperAdminInviteSerializer
 )
 
 User = get_user_model()
@@ -125,5 +127,69 @@ class ApproveSuperAdminInviteView(APIView):
         return Response({
             "message": "SuperAdmin criado com sucesso",
             "email": user.email,
+            "code_status": status.HTTP_200_OK
+        })
+    
+class ResendSuperAdminInviteTokenView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        request=ResendSuperAdminInviteSerializer,
+        responses={200: dict}
+    )
+    def post(self, request):
+        # Verificar se é superadmin
+        if not request.user.is_superadmin:
+            return Response(
+                {"error": "Apenas superadmins podem reenviar tokens"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        serializer = ResendSuperAdminInviteSerializer(data=request.data)
+        
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        email = serializer.validated_data["email"]
+
+        try:
+            invite = SuperAdminInvite.objects.get(email=email, used=False)
+        except SuperAdminInvite.DoesNotExist:
+            return Response(
+                {"error": "Nenhum convite pendente encontrado para este email"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        def generate_invite_code():
+           return str(secrets.randbelow(900000) + 100000)
+        
+        while True:
+            new_token = generate_invite_code()
+            if not SuperAdminInvite.objects.filter(token=new_token).exists():
+                invite.token = new_token
+                break
+
+        invite.save()
+
+        html_message = render_to_string(
+            "emails/superadmin_invite.html",
+            {
+                "email": invite.email,
+                "token": invite.token,
+            }
+        )
+
+        for email_admin in settings.ADMINS_EMAILS:
+            send_mail(
+                subject="[REENVIO] Aprovação de novo SuperAdmin",
+                message=f"Novo token para aprovar {invite.email}: {invite.token}",
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[email_admin],
+                html_message=html_message
+            )
+
+        return Response({
+            "message": "Novo token gerado e enviado com sucesso",
+            "email": invite.email,
             "code_status": status.HTTP_200_OK
         })
