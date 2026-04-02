@@ -15,6 +15,16 @@ class ChatSerializer(serializers.ModelSerializer):
             'from_number',
         ]
         
+class ChatCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Chat
+        fields = [
+            'id',
+            'contact',
+            'from_number',
+        ]
+
 class ChatRetrieveSerializer(serializers.ModelSerializer):
     messages = serializers.SerializerMethodField()
     contact = ContactWhatsappListSerializer(read_only=True)

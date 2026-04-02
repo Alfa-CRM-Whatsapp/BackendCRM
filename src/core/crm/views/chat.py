@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from core.crm.models import Chat, WhatsappMessage, OutboundWhatsappMessage
-from core.crm.serializers import ChatSerializer, ChatRetrieveSerializer
+from core.crm.serializers import ChatSerializer, ChatRetrieveSerializer, ChatCreateSerializer
 from rest_framework.response import Response
 
 class ChatViewSet(viewsets.ModelViewSet):
@@ -9,6 +9,8 @@ class ChatViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == 'retrieve':
             return ChatRetrieveSerializer
+        if self.action == 'create':
+            return ChatCreateSerializer
         return ChatSerializer
 
     def retrieve(self, request, *args, **kwargs):
