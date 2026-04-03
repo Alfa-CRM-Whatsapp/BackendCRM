@@ -33,7 +33,8 @@ from core.crm.views import (
     WhatsAppTemplateViewSet,
     TemplateComponentViewSet,
     TemplateParameterViewSet,
-    TemplateButtonViewSet
+    TemplateButtonViewSet,
+    TemplateSubmissionViewSet
 )
 
 router = DefaultRouter()
@@ -49,6 +50,7 @@ router.register(r'templates', WhatsAppTemplateViewSet, basename='template')
 router.register(r'template-components', TemplateComponentViewSet, basename='template-component')
 router.register(r'template-parameters', TemplateParameterViewSet, basename='template-parameter')
 router.register(r'template-buttons', TemplateButtonViewSet, basename='template-button')
+router.register(r'template-submissions', TemplateSubmissionViewSet, basename='template-submission')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

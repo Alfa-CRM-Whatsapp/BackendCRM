@@ -88,6 +88,7 @@ class WhatsAppTemplateSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "name",
+            "meta_template_id",
             "language",
             "category",
             "parameter_format",

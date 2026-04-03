@@ -3,3 +3,4 @@ from .message import WhatsappMessageListSerializer, WhatsappMessageCreateSeriali
 from .number import WhatsappNumberSerializer
 from .chat import ChatSerializer, ChatRetrieveSerializer, ChatCreateSerializer
 from .templates import WhatsAppTemplateSerializer, TemplateComponentSerializer, TemplateParameterSerializer, TemplateButtonSerializer
+from .template_submission import TemplateSubmissionSerializer

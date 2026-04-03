@@ -8,3 +8,4 @@ from .webhook_messages import WhatsappMessageWebhookView
 from .verify_number import VerifyWhatsappNumber
 from .register_number import RegisterWhatsappNumber
 from .templates import WhatsAppTemplateViewSet, TemplateComponentViewSet, TemplateParameterViewSet, TemplateButtonViewSet
+from .template_submission import TemplateSubmissionViewSet
