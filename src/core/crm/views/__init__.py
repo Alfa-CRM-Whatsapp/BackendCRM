@@ -7,3 +7,4 @@ from .chat import ChatViewSet, MyChatsViewSet
 from .webhook_messages import WhatsappMessageWebhookView
 from .verify_number import VerifyWhatsappNumber
 from .register_number import RegisterWhatsappNumber
+from .templates import WhatsAppTemplateViewSet, TemplateComponentViewSet, TemplateParameterViewSet, TemplateButtonViewSet

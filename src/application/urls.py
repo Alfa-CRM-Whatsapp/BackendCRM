@@ -29,7 +29,11 @@ from core.crm.views import (
     OutboundWhatsappMessageViewSet,
     ChatViewSet,
     MyChatsViewSet,
-    WhatsappMessageWebhookView
+    WhatsappMessageWebhookView,
+    WhatsAppTemplateViewSet,
+    TemplateComponentViewSet,
+    TemplateParameterViewSet,
+    TemplateButtonViewSet
 )
 
 router = DefaultRouter()
@@ -41,6 +45,10 @@ router.register(r'numbers', WhatsappNumberView, basename='number')
 router.register(r'sended-messages', OutboundWhatsappMessageViewSet, basename='sended-message')
 router.register(r'superadmin-invites', SuperAdminInviteViewSet, basename='superadmin-invite')
 router.register(r'chats', ChatViewSet, basename='chat')
+router.register(r'templates', WhatsAppTemplateViewSet, basename='template')
+router.register(r'template-components', TemplateComponentViewSet, basename='template-component')
+router.register(r'template-parameters', TemplateParameterViewSet, basename='template-parameter')
+router.register(r'template-buttons', TemplateButtonViewSet, basename='template-button')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
