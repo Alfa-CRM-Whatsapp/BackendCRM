@@ -47,7 +47,7 @@ class OutboundWhatsappMessageViewSet(viewsets.ModelViewSet):
         url = f"https://graph.facebook.com/v18.0/{phone_number_id}/messages"
 
         headers = {
-            "Authorization": f"Bearer {settings.ACESS_TOKEN}",
+            "Authorization": f"Bearer {settings.ACCESS_TOKEN}",
             "Content-Type": "application/json"
         }
 

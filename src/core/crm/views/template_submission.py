@@ -136,7 +136,7 @@ class TemplateSubmissionViewSet(viewsets.ModelViewSet):
         url = f"https://graph.facebook.com/v23.0/{settings.WABA_ID}/message_templates"
 
         headers = {
-            "Authorization": f"Bearer {settings.ACESS_TOKEN}",
+            "Authorization": f"Bearer {settings.ACCESS_TOKEN}",
             "Content-Type": "application/json"
         }
 

@@ -143,5 +143,5 @@ VERIFY_TOKEN = os.getenv("VERIFY_TOKEN")
 
 META_APP_ID = os.getenv("META_APP_ID")
 META_APP_SECRET = os.getenv("META_APP_SECRET")
-ACESS_TOKEN = os.getenv("ACESS_TOKEN")
+ACCESS_TOKEN = os.getenv("ACESS_TOKEN")
 WABA_ID = os.getenv("WABA_ID")

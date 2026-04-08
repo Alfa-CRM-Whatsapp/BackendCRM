@@ -13,7 +13,7 @@ class RegisterWhatsappNumber(APIView):
         r = requests.post(
             f"https://graph.facebook.com/v19.0/{settings.WABA_ID}/phone_numbers",
             headers={
-                "Authorization": f"Bearer {settings.ACESS_TOKEN}"
+                "Authorization": f"Bearer {settings.ACCESS_TOKEN}"
             },
             data={
                 "cc": "55",

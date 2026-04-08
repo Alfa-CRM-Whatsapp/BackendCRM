@@ -1,14 +1,36 @@
+import requests
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from django.db import transaction
 
 from core.crm.models import WhatsAppTemplate, TemplateComponent, TemplateParameter, TemplateButton
 from core.crm.serializers import WhatsAppTemplateSerializer, TemplateComponentSerializer, TemplateParameterSerializer, TemplateButtonSerializer
+from django.conf import settings
 
 
 class WhatsAppTemplateViewSet(viewsets.ModelViewSet):
     queryset = WhatsAppTemplate.objects.all()
     serializer_class = WhatsAppTemplateSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        if instance.meta_template_id:
+            try:
+                url = f"https://graph.facebook.com/v23.0/{settings.WABA_ID}/message_templates"
+                params = {
+                    "name": instance.name,
+                    "language": instance.language
+                }
+                headers = {
+                    "Authorization": f"Bearer {settings.ACCESS_TOKEN}",
+                }
+                response = requests.delete(url, headers=headers, params=params, timeout=30)
+            except Exception as e:
+                pass
+
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -55,7 +77,6 @@ class TemplateComponentViewSet(viewsets.ModelViewSet):
 class TemplateParameterViewSet(viewsets.ModelViewSet):
     queryset = TemplateParameter.objects.all()
     serializer_class = TemplateParameterSerializer
-
 
 class TemplateButtonViewSet(viewsets.ModelViewSet):
     queryset = TemplateButton.objects.all()
