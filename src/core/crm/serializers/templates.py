@@ -4,8 +4,8 @@ from core.crm.models import (
     TemplateComponent,
     WhatsAppTemplate,
     TemplateButton,
+    ContactWhatsapp
 )
-
 
 class TemplateParameterSerializer(serializers.ModelSerializer):
 
@@ -96,3 +96,21 @@ class WhatsAppTemplateSerializer(serializers.ModelSerializer):
             "quality_rating",
             "components",
         ]
+
+class SendTemplateMessageSerializer(serializers.Serializer):
+    contact = serializers.IntegerField()
+    template = serializers.IntegerField()
+    parameters = serializers.DictField(child=serializers.CharField(), required=False)
+
+    def validate(self, data):
+        try:
+            data["contact_obj"] = ContactWhatsapp.objects.get(id=data["contact"])
+        except ContactWhatsapp.DoesNotExist:
+            raise serializers.ValidationError("Contato não encontrado")
+
+        try:
+            data["template_obj"] = WhatsAppTemplate.objects.get(id=data["template"])
+        except WhatsAppTemplate.DoesNotExist:
+            raise serializers.ValidationError("Template não encontrado")
+
+        return data

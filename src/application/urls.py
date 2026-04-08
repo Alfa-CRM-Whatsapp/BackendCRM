@@ -34,7 +34,8 @@ from core.crm.views import (
     TemplateComponentViewSet,
     TemplateParameterViewSet,
     TemplateButtonViewSet,
-    TemplateSubmissionViewSet
+    TemplateSubmissionViewSet,
+    SendTemplateMessageView
 )
 
 router = DefaultRouter()
@@ -66,5 +67,6 @@ urlpatterns = [
     path("api/verify-number/", VerifyWhatsappNumber.as_view()),
     path("api/register-number/", RegisterWhatsappNumber.as_view()),
     path("api/my-chats/", MyChatsViewSet.as_view({"get": "list"}), name="my-chats"),
-    path('api/resend-token/', ResendSuperAdminInviteTokenView.as_view(), name='resend-token'),  
+    path('api/resend-token/', ResendSuperAdminInviteTokenView.as_view(), name='resend-token'),
+    path('api/send-template-message/', SendTemplateMessageView.as_view(), name='send-template-message'),
 ]

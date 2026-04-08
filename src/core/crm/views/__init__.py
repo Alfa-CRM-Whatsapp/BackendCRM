@@ -9,3 +9,4 @@ from .verify_number import VerifyWhatsappNumber
 from .register_number import RegisterWhatsappNumber
 from .templates import WhatsAppTemplateViewSet, TemplateComponentViewSet, TemplateParameterViewSet, TemplateButtonViewSet
 from .template_submission import TemplateSubmissionViewSet
+from .send_template_message import SendTemplateMessageView
