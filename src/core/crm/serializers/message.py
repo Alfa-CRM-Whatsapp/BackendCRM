@@ -8,16 +8,14 @@ from core.crm.models import (
 from rest_framework import serializers
 from .contact import ContactWhatsappListSerializer
 from .number import WhatsappNumberSerializer
+from .category import MessageCategorySerializer
 
-
-# =========================
-# INBOUND (recebidas)
-# =========================
 class WhatsappMessageListSerializer(serializers.ModelSerializer):
 
     contact = ContactWhatsappListSerializer(read_only=True)
     from_number = WhatsappNumberSerializer(read_only=True)
     chat_id = serializers.IntegerField(source='chat.id', read_only=True)
+    category = MessageCategorySerializer(read_only=True)
 
     class Meta:
         model = WhatsappMessage
@@ -31,6 +29,7 @@ class WhatsappMessageListSerializer(serializers.ModelSerializer):
             'from_number',
             'chat_id',
             'created_at',
+            'category',
         ]
 
 
@@ -68,10 +67,6 @@ class WhatsappMessageCreateSerializer(serializers.Serializer):
             messages=validated_data['messages'],
         )
 
-
-# =========================
-# OUTBOUND (enviadas)
-# =========================
 class OutboundWhatsappMessageListSerializer(serializers.ModelSerializer):
 
     contact_name = serializers.CharField(source='contact.profile_name', read_only=True)
@@ -118,7 +113,6 @@ class OutboundWhatsappMessageCreateSerializer(serializers.Serializer):
         contact = validated_data['contact']
         from_number = validated_data['from_number']
 
-        # 🔥 mesma lógica aqui
         chat, _ = Chat.objects.get_or_create(
             contact=contact,
             from_number=from_number

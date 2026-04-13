@@ -14,7 +14,8 @@ class VerifyWhatsappNumber(APIView):
         r = requests.post(
             f"https://graph.facebook.com/v19.0/{phone_number_id}/verify_code",
             headers={
-                "Authorization": f"Bearer {settings.META_TOKEN}"
+                "Authorization": f"Bearer {settings.ACCESS_TOKEN}",
+                "Content-Type": "application/json"
             },
             data={
                 "code": code

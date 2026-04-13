@@ -1,17 +1,19 @@
 import json
+
 from django.conf import settings
 from rest_framework.views import APIView
 from django.http import HttpResponse, JsonResponse
 from django.utils import timezone
 
 from core.crm.models import (
-    WhatsappMessage, 
-    WhatsappNumber, 
-    ContactWhatsapp, 
-    OutboundWhatsappMessage, 
+    WhatsappMessage,
+    WhatsappNumber,
+    ContactWhatsapp,
+    OutboundWhatsappMessage,
     Chat,
     WhatsAppTemplate
 )
+
 
 class WhatsappMessageWebhookView(APIView):
 
@@ -82,7 +84,7 @@ class WhatsappMessageWebhookView(APIView):
                         messages=message
                     )
 
-                    print("📩 Mensagem recebida salva")
+                    print("📨 Mensagem salva e enviada ao signal")
 
                 elif "statuses" in value:
 
@@ -97,13 +99,11 @@ class WhatsappMessageWebhookView(APIView):
                         status=status_value
                     )
 
-                    print(f"📬 Status atualizado: {message_id} -> {status_value} | updated={updated}")
-
+                    print(f"📬 Status atualizado: {message_id} -> {status_value}")
 
             elif field == "message_template_status_update":
-
                 template_id = value.get("message_template_id")
-                status = value.get("event") 
+                status = value.get("event")
                 reason = value.get("reason")
 
                 template = WhatsAppTemplate.objects.filter(
@@ -123,10 +123,6 @@ class WhatsappMessageWebhookView(APIView):
 
                     print(f"📦 Template atualizado: {template.name} -> {status}")
 
-                else:
-                    print("⚠️ Template não encontrado para status update")
-
-
             elif field == "template_category_update":
 
                 template_id = value.get("message_template_id")
@@ -141,12 +137,6 @@ class WhatsappMessageWebhookView(APIView):
                     template.save()
 
                     print(f"🔄 Categoria atualizada: {template.name} -> {new_category}")
-
-                else:
-                    print("⚠️ Template não encontrado para category update")
-
-            else:
-                print(f"⚠️ Tipo de webhook desconhecido: {field}")
 
         except Exception as e:
             print("❌ Erro ao processar webhook:", str(e))

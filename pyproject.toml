@@ -23,6 +23,7 @@ dependencies = [
     "django-filter>=25.1",
     "ipython>=9.7.0",
     "requests>=2.32.5",
+    "rapidfuzz>=3.14.5",
 ]
 requires-python = ">=3.12"
 readme = "README.md"

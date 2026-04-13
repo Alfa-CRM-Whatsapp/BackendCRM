@@ -1,6 +1,7 @@
 from django.db import models
 from core.crm.models import ContactWhatsapp, WhatsappNumber
-from .chat import Chat  # ajuste o import conforme seu projeto
+from .chat import Chat
+from .category import MessageCategory
 
 class WhatsappMessage(models.Model):
     id_message = models.CharField(max_length=255, unique=True)
@@ -29,6 +30,18 @@ class WhatsappMessage(models.Model):
 
     messages = models.JSONField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+    category = models.ForeignKey(
+        MessageCategory,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='messages'
+    )
+    category_confidence = models.FloatField(
+        null=True,
+        blank=True,
+    )
 
     def __str__(self):
         return f'Message {self.id_message} for Contact {self.contact.id}'

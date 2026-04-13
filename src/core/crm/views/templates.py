@@ -2,6 +2,7 @@ import requests
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from django.db import transaction
+from rest_framework.exceptions import ValidationError   
 
 from core.crm.models import WhatsAppTemplate, TemplateComponent, TemplateParameter, TemplateButton
 from core.crm.serializers import WhatsAppTemplateSerializer, TemplateComponentSerializer, TemplateParameterSerializer, TemplateButtonSerializer
@@ -27,7 +28,7 @@ class WhatsAppTemplateViewSet(viewsets.ModelViewSet):
                 }
                 response = requests.delete(url, headers=headers, params=params, timeout=30)
             except Exception as e:
-                pass
+                raise ValidationError(f"Erro ao tentar deletar template no Meta: {str(e)}")
 
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)

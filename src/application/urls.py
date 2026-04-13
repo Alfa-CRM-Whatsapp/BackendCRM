@@ -35,7 +35,9 @@ from core.crm.views import (
     TemplateParameterViewSet,
     TemplateButtonViewSet,
     TemplateSubmissionViewSet,
-    SendTemplateMessageView
+    SendTemplateMessageView,
+    MessageCategoryViewSet,
+    CategoryExampleViewSet
 )
 
 router = DefaultRouter()
@@ -52,6 +54,8 @@ router.register(r'template-components', TemplateComponentViewSet, basename='temp
 router.register(r'template-parameters', TemplateParameterViewSet, basename='template-parameter')
 router.register(r'template-buttons', TemplateButtonViewSet, basename='template-button')
 router.register(r'template-submissions', TemplateSubmissionViewSet, basename='template-submission')
+router.register(r'message-categories', MessageCategoryViewSet, basename='message-category')
+router.register(r'category-examples', CategoryExampleViewSet, basename='category-example')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
