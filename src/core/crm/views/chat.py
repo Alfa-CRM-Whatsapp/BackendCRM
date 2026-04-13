@@ -16,18 +16,30 @@ class ChatViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
 
-        inbound = WhatsappMessage.objects.filter(chat=instance)
+        inbound = WhatsappMessage.objects.filter(chat=instance).select_related('category')
         outbound = OutboundWhatsappMessage.objects.filter(chat=instance)
 
         messages = []
 
         for msg in inbound:
+            category_data = None
+            if msg.category:
+                category_data = {
+                    "id": msg.category.id,
+                    "name": msg.category.name,
+                    "description": msg.category.description,
+                    "color": msg.category.color,
+                    "is_active": msg.category.is_active
+                }
+            
             messages.append({
                 "id": msg.id,
                 "type": msg.type,
                 "direction": "inbound",
                 "content": msg.messages,
-                "created_at": msg.created_at
+                "created_at": msg.created_at,
+                "category": category_data,  
+                "category_confidence": msg.category_confidence  
             })
 
         for msg in outbound:
@@ -37,7 +49,9 @@ class ChatViewSet(viewsets.ModelViewSet):
                 "direction": "outbound",
                 "content": msg.message,
                 "status": msg.status,
-                "created_at": msg.created_at
+                "created_at": msg.created_at,
+                "category": None, 
+                "category_confidence": None
             })
 
         messages.sort(key=lambda x: x["created_at"])
