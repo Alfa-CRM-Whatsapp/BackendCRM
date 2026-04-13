@@ -37,7 +37,7 @@ def auto_learn(category, message_text: str):
     try:
         text = normalize(message_text)
 
-        if len(text) < 5:
+        if len(text) <= 1:
             return
 
         total = CategoryExample.objects.filter(

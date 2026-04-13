@@ -58,3 +58,42 @@ class CategoryExampleViewSet(ModelViewSet):
             queryset = queryset.filter(category_id=category_id)
 
         return queryset
+
+    @action(detail=False, methods=['get'], url_path='by-category/(?P<category_id>[^/.]+)')
+    def get_examples_by_category(self, request, category_id=None):
+        """
+        Retorna todos os exemplos de uma categoria específica
+        Rota: /api/category-examples/by-category/{category_id}/
+        """
+        try:
+            category_exists = MessageCategory.objects.filter(id=category_id).exists()
+            
+            if not category_exists:
+                return Response(
+                    {"error": f"Categoria com id {category_id} não encontrada"},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            
+            examples = CategoryExample.objects.filter(category_id=category_id)
+            
+            positive_examples = examples.filter(is_positive=True)
+            negative_examples = examples.filter(is_positive=False)
+            
+            serializer = self.get_serializer(examples, many=True)
+            
+            category = MessageCategory.objects.get(id=category_id)
+            category_serializer = MessageCategorySerializer(category)
+
+            return Response({
+                "category": category_serializer.data,
+                "total_count": examples.count(),
+                "positive_count": positive_examples.count(),
+                "negative_count": negative_examples.count(),
+                "examples": serializer.data
+            })
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
