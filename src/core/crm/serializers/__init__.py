@@ -1,5 +1,5 @@
 from .contact import ContactWhatsappListSerializer
-from .category import MessageCategorySerializer, CategoryExampleSerializer
+from .category import MessageCategorySerializer, CategoryExampleSerializer, CategoryExampleCreateSerializer
 from .message import WhatsappMessageListSerializer, WhatsappMessageCreateSerializer, OutboundWhatsappMessageListSerializer, OutboundWhatsappMessageCreateSerializer
 from .number import WhatsappNumberSerializer
 from .chat import ChatSerializer, ChatRetrieveSerializer, ChatCreateSerializer

@@ -3,7 +3,8 @@ from rest_framework.viewsets import ModelViewSet
 from core.crm.models import MessageCategory, CategoryExample
 from core.crm.serializers.category import (
     MessageCategorySerializer,
-    CategoryExampleSerializer
+    CategoryExampleSerializer,
+    CategoryExampleCreateSerializer
 )
 
 from rest_framework import status
@@ -47,7 +48,11 @@ class MessageCategoryViewSet(ModelViewSet):
 
 class CategoryExampleViewSet(ModelViewSet):
     queryset = CategoryExample.objects.all()
-    serializer_class = CategoryExampleSerializer
+
+    def get_serializer_class(self):
+        if self.action == "create":
+            return CategoryExampleCreateSerializer
+        return CategoryExampleSerializer
 
     def get_queryset(self):
         queryset = super().get_queryset()

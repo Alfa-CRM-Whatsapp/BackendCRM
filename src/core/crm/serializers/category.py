@@ -30,3 +30,15 @@ class CategoryExampleSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "created_at"]
 
+class CategoryExampleCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CategoryExample
+        fields = [
+            "id",
+            "category",
+            "text",
+            "is_positive",
+            "created_at"
+        ]
+        read_only_fields = ["id", "created_at"]
