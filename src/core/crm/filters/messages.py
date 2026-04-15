@@ -9,7 +9,10 @@ class WhatsappMessageFilter(django_filters.FilterSet):
         field_name='category__name',
         lookup_expr='in'
     )
+    year = django_filters.NumberFilter(field_name='created_at', lookup_expr='year')
+    month = django_filters.NumberFilter(field_name='created_at', lookup_expr='month')
+    day = django_filters.NumberFilter(field_name='created_at', lookup_expr='day')
 
     class Meta:
         model = WhatsappMessage
-        fields = ['category']
+        fields = ['category', 'year', 'month', 'day']

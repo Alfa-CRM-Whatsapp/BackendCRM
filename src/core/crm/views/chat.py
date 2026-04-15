@@ -7,6 +7,15 @@ from django.db.models import Q
 class ChatViewSet(viewsets.ModelViewSet):
     queryset = Chat.objects.all()
 
+    @staticmethod
+    def _parse_int_param(value):
+        if value is None:
+            return None
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return None
+
     def get_serializer_class(self):
         if self.action == 'retrieve':
             return ChatRetrieveSerializer
@@ -18,14 +27,29 @@ class ChatViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
 
         category_param = request.query_params.get("category")
+        direction_param = request.query_params.get("direction")
+        year = self._parse_int_param(request.query_params.get("year"))
+        month = self._parse_int_param(request.query_params.get("month"))
+        day = self._parse_int_param(request.query_params.get("day"))
 
-        inbound = (
-            WhatsappMessage.objects
-            .filter(chat=instance)
-            .select_related('category')
-        )
+        allowed_directions = {"inbound", "outbound"}
+        selected_directions = {
+            value.strip().lower()
+            for value in (direction_param or "").split(",")
+            if value.strip().lower() in allowed_directions
+        }
+        include_inbound = not selected_directions or "inbound" in selected_directions
+        include_outbound = not selected_directions or "outbound" in selected_directions
 
-        if category_param:
+        inbound = WhatsappMessage.objects.none()
+        if include_inbound:
+            inbound = (
+                WhatsappMessage.objects
+                .filter(chat=instance)
+                .select_related('category')
+            )
+
+        if category_param and include_inbound:
             values = category_param.split(',')
 
             inbound = inbound.filter(
@@ -33,7 +57,23 @@ class ChatViewSet(viewsets.ModelViewSet):
                 Q(category__id__in=[v for v in values if v.isdigit()])
             )
 
-        outbound = OutboundWhatsappMessage.objects.filter(chat=instance)
+        if year is not None and include_inbound:
+            inbound = inbound.filter(created_at__year=year)
+        if month is not None and include_inbound:
+            inbound = inbound.filter(created_at__month=month)
+        if day is not None and include_inbound:
+            inbound = inbound.filter(created_at__day=day)
+
+        outbound = OutboundWhatsappMessage.objects.none()
+        if include_outbound:
+            outbound = OutboundWhatsappMessage.objects.filter(chat=instance)
+
+        if year is not None and include_outbound:
+            outbound = outbound.filter(created_at__year=year)
+        if month is not None and include_outbound:
+            outbound = outbound.filter(created_at__month=month)
+        if day is not None and include_outbound:
+            outbound = outbound.filter(created_at__day=day)
 
         messages = []
 
