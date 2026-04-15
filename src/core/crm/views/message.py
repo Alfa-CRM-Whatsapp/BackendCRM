@@ -6,9 +6,13 @@ from core.crm.serializers import WhatsappMessageListSerializer, WhatsappMessageC
 from django.conf import settings
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
+from core.crm.filters import WhatsappMessageFilter
+from django_filters.rest_framework import DjangoFilterBackend
 
 class WhatsappMessageView(viewsets.ModelViewSet):
     queryset = WhatsappMessage.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = WhatsappMessageFilter
 
     def get_serializer_class(self):
         if self.action == 'list':

@@ -2,6 +2,7 @@ from rest_framework import viewsets
 from core.crm.models import Chat, WhatsappMessage, OutboundWhatsappMessage
 from core.crm.serializers import ChatSerializer, ChatRetrieveSerializer, ChatCreateSerializer
 from rest_framework.response import Response
+from django.db.models import Q
 
 class ChatViewSet(viewsets.ModelViewSet):
     queryset = Chat.objects.all()
@@ -16,13 +17,29 @@ class ChatViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
 
-        inbound = WhatsappMessage.objects.filter(chat=instance).select_related('category')
+        category_param = request.query_params.get("category")
+
+        inbound = (
+            WhatsappMessage.objects
+            .filter(chat=instance)
+            .select_related('category')
+        )
+
+        if category_param:
+            values = category_param.split(',')
+
+            inbound = inbound.filter(
+                Q(category__name__in=values) |
+                Q(category__id__in=[v for v in values if v.isdigit()])
+            )
+
         outbound = OutboundWhatsappMessage.objects.filter(chat=instance)
 
         messages = []
 
         for msg in inbound:
             category_data = None
+
             if msg.category:
                 category_data = {
                     "id": msg.category.id,
@@ -31,15 +48,15 @@ class ChatViewSet(viewsets.ModelViewSet):
                     "color": msg.category.color,
                     "is_active": msg.category.is_active
                 }
-            
+
             messages.append({
                 "id": msg.id,
                 "type": msg.type,
                 "direction": "inbound",
                 "content": msg.messages,
                 "created_at": msg.created_at,
-                "category": category_data,  
-                "category_confidence": msg.category_confidence  
+                "category": category_data,
+                "category_confidence": msg.category_confidence
             })
 
         for msg in outbound:
@@ -50,7 +67,7 @@ class ChatViewSet(viewsets.ModelViewSet):
                 "content": msg.message,
                 "status": msg.status,
                 "created_at": msg.created_at,
-                "category": None, 
+                "category": None,
                 "category_confidence": None
             })
 
