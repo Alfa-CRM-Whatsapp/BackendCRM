@@ -16,6 +16,55 @@ class ChatViewSet(viewsets.ModelViewSet):
         except (TypeError, ValueError):
             return None
 
+    @staticmethod
+    def _extract_message_text(content):
+        """Extrai texto pesquisavel quando a mensagem possui campos textuais."""
+        if content is None:
+            return ""
+
+        if isinstance(content, str):
+            return content
+
+        if not isinstance(content, (dict, list)):
+            return ""
+
+        collected = []
+        textual_keys = {
+            "body",
+            "text",
+            "caption",
+            "title",
+            "description",
+            "name",
+        }
+
+        def walk(value):
+            if isinstance(value, str):
+                collected.append(value)
+                return
+
+            if isinstance(value, list):
+                for item in value:
+                    walk(item)
+                return
+
+            if isinstance(value, dict):
+                for key, nested in value.items():
+                    if isinstance(nested, str) and str(key).lower() in textual_keys:
+                        collected.append(nested)
+                    elif isinstance(nested, (dict, list)):
+                        walk(nested)
+
+        walk(content)
+        return " ".join(collected)
+
+    @staticmethod
+    def _normalize_search_param(value):
+        term = (value or "").strip()
+        if len(term) >= 2 and term[0] == term[-1] and term[0] in {'"', "'"}:
+            return term[1:-1].strip()
+        return term
+
     def get_serializer_class(self):
         if self.action == 'retrieve':
             return ChatRetrieveSerializer
@@ -28,6 +77,12 @@ class ChatViewSet(viewsets.ModelViewSet):
 
         category_param = request.query_params.get("category")
         direction_param = request.query_params.get("direction")
+        raw_search_param = (
+            request.query_params.get("search")
+            or request.query_params.get("text")
+            or request.query_params.get("q")
+        )
+        search_param = self._normalize_search_param(raw_search_param)
         year = self._parse_int_param(request.query_params.get("year"))
         month = self._parse_int_param(request.query_params.get("month"))
         day = self._parse_int_param(request.query_params.get("day"))
@@ -110,6 +165,13 @@ class ChatViewSet(viewsets.ModelViewSet):
                 "category": None,
                 "category_confidence": None
             })
+
+        if search_param:
+            query = search_param.lower()
+            messages = [
+                msg for msg in messages
+                if query in self._extract_message_text(msg.get("content")).lower()
+            ]
 
         messages.sort(key=lambda x: x["created_at"])
 
