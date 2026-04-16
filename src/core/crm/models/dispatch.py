@@ -14,6 +14,7 @@ class Dispatch(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     executed_at = models.DateTimeField(blank=True, null=True)
+    params = models.JSONField(default=dict, blank=True)
 
     def __str__(self):
         return f"Dispatch {self.id} - {self.template.name}"

@@ -5,4 +5,4 @@ from .number import WhatsappNumberSerializer
 from .chat import ChatSerializer, ChatRetrieveSerializer, ChatCreateSerializer
 from .templates import WhatsAppTemplateSerializer, TemplateComponentSerializer, TemplateParameterSerializer, TemplateButtonSerializer, SendTemplateMessageSerializer
 from .template_submission import TemplateSubmissionSerializer
-from .dispatch import DispatchSerializer, DispatchExecuteSerializer
+from .dispatch import DispatchSerializer, DispatchExecuteSerializer, DispatchDirectSendSerializer

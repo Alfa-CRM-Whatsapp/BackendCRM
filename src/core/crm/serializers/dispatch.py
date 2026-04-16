@@ -34,10 +34,11 @@ class DispatchSerializer(serializers.ModelSerializer):
             "template_id",
             "contacts",
             "contact_ids",
+            "params",
             "created_at",
             "executed_at",
         ]
-        read_only_fields = ["id", "created_at", "executed_at", "template", "contacts"]
+        read_only_fields = ["id", "params", "created_at", "executed_at", "template", "contacts"]
 
 
 class DispatchExecuteSerializer(serializers.Serializer):
@@ -49,3 +50,26 @@ class DispatchExecuteSerializer(serializers.Serializer):
         required=False,
         default=dict
     )
+
+
+class DispatchDirectTemplateSerializer(serializers.Serializer):
+    id = serializers.PrimaryKeyRelatedField(
+        queryset=WhatsAppTemplate.objects.all(),
+        source="template"
+    )
+    params = serializers.DictField(
+        child=serializers.CharField(),
+        required=False,
+        default=dict
+    )
+
+
+class DispatchDirectSendSerializer(serializers.Serializer):
+    from_number = serializers.PrimaryKeyRelatedField(
+        queryset=WhatsappNumber.objects.all()
+    )
+    contacts = serializers.PrimaryKeyRelatedField(
+        queryset=ContactWhatsapp.objects.all(),
+        many=True
+    )
+    template = DispatchDirectTemplateSerializer()

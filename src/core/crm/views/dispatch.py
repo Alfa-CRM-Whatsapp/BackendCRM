@@ -6,7 +6,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from core.crm.models import Chat, Dispatch, OutboundWhatsappMessage
-from core.crm.serializers import DispatchExecuteSerializer, DispatchSerializer
+from core.crm.serializers import DispatchDirectSendSerializer, DispatchExecuteSerializer, DispatchSerializer
 
 
 class DispatchViewSet(viewsets.ModelViewSet):
@@ -108,63 +108,32 @@ class DispatchViewSet(viewsets.ModelViewSet):
 
         return components_payload
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        validated_data = serializer.validated_data
-        contacts = validated_data.pop("contacts", [])
-
-        dispatch = Dispatch.objects.create(**validated_data)
-        dispatch.contacts.set(contacts)
-
-        output = self.get_serializer(dispatch)
-        return Response(output.data, status=status.HTTP_201_CREATED)
-
-    def update(self, request, *args, **kwargs):
-        partial = kwargs.pop("partial", False)
-        instance = self.get_object()
-
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-
-        validated_data = serializer.validated_data
-        contacts = validated_data.pop("contacts", None)
-
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-
-        instance.save()
-
-        if contacts is not None:
-            instance.contacts.set(contacts)
-
-        output = self.get_serializer(instance)
-        return Response(output.data, status=status.HTTP_200_OK)
-
-    def partial_update(self, request, *args, **kwargs):
-        kwargs["partial"] = True
-        return self.update(request, *args, **kwargs)
-
-    @action(detail=True, methods=["post"])
-    def execute(self, request, *args, **kwargs):
-        dispatch = self.get_object()
-
-        serializer = DispatchExecuteSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        from_number = serializer.validated_data["from_number"]
-        global_overrides = self._stringify_dict(
-            serializer.validated_data.get("parameter_overrides", {})
-        )
+    def _execute_dispatch(self, dispatch, from_number, global_overrides):
         now = timezone.now()
-
         sent_count = 0
+        applied_contacts = []
 
         for contact in dispatch.contacts.all():
             template_components = self._build_template_components_payload(
                 dispatch.template,
                 global_overrides,
+            )
+
+            resolved_params = {}
+            for component in template_components:
+                for parameter in component.get("parameters", []):
+                    key = parameter.get("name")
+                    if not key and parameter.get("position") is not None:
+                        key = str(parameter.get("position"))
+                    if key:
+                        resolved_params[str(key)] = parameter.get("value")
+
+            applied_contacts.append(
+                {
+                    "contact_id": contact.id,
+                    "resolved_params": resolved_params,
+                    "components": template_components,
+                }
             )
 
             chat, _ = Chat.objects.get_or_create(
@@ -206,14 +175,101 @@ class DispatchViewSet(viewsets.ModelViewSet):
             sent_count += 1
 
         dispatch.executed_at = now
-        dispatch.save(update_fields=["executed_at"])
+        dispatch.params = {
+            "input_params": global_overrides,
+            "applied": {
+                "template_id": dispatch.template_id,
+                "parameter_format": dispatch.template.parameter_format,
+                "contacts": applied_contacts,
+            },
+        }
+        dispatch.save(update_fields=["executed_at", "params"])
+
+        return {
+            "dispatch_id": dispatch.id,
+            "template_id": dispatch.template_id,
+            "sent_count": sent_count,
+            "executed_at": dispatch.executed_at,
+        }
+
+    def create(self, request, *args, **kwargs):
+        serializer = DispatchDirectSendSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        from_number = serializer.validated_data["from_number"]
+        contacts = serializer.validated_data["contacts"]
+
+        template_payload = serializer.validated_data["template"]
+        template = template_payload["template"]
+        parameter_overrides = self._stringify_dict(template_payload.get("params", {}))
+
+        dispatch = Dispatch.objects.create(template=template)
+        dispatch.contacts.set(contacts)
+
+        execution_data = self._execute_dispatch(
+            dispatch=dispatch,
+            from_number=from_number,
+            global_overrides=parameter_overrides,
+        )
+
+        output = self.get_serializer(dispatch)
 
         return Response(
             {
-                "dispatch_id": dispatch.id,
-                "template_id": dispatch.template_id,
-                "sent_count": sent_count,
-                "executed_at": dispatch.executed_at,
+                "dispatch": output.data,
+                "execution": execution_data,
             },
-            status=status.HTTP_200_OK,
+            status=status.HTTP_201_CREATED,
         )
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        validated_data = serializer.validated_data
+        contacts = validated_data.pop("contacts", None)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+
+        if contacts is not None:
+            instance.contacts.set(contacts)
+
+        output = self.get_serializer(instance)
+        return Response(output.data, status=status.HTTP_200_OK)
+
+    def partial_update(self, request, *args, **kwargs):
+        kwargs["partial"] = True
+        return self.update(request, *args, **kwargs)
+
+    @action(detail=True, methods=["post"])
+    def execute(self, request, *args, **kwargs):
+        dispatch = self.get_object()
+
+        if dispatch.executed_at is None:
+            return Response(
+                {
+                    "detail": "Este dispatch ainda nao foi executado. Use POST /api/dispatch/ para a primeira execucao.",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        serializer = DispatchExecuteSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        from_number = serializer.validated_data["from_number"]
+        global_overrides = self._stringify_dict(
+            serializer.validated_data.get("parameter_overrides", {})
+        )
+        execution_data = self._execute_dispatch(
+            dispatch=dispatch,
+            from_number=from_number,
+            global_overrides=global_overrides,
+        )
+
+        return Response(execution_data, status=status.HTTP_200_OK)

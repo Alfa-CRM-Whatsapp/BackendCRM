@@ -63,6 +63,8 @@ router.register(r'dispatches', DispatchViewSet, basename='dispatch')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
+    path('api/dispatch/', DispatchViewSet.as_view({'post': 'create'}), name='dispatch-direct-create'),
+    path('api/dispatch/<int:pk>/execute/', DispatchViewSet.as_view({'post': 'execute'}), name='dispatch-direct-execute'),
     path("api/token/", EmailTokenObtainPairView.as_view()),
     path("api/token/refresh/", TokenRefreshView.as_view()),
     path("api/superadmin/approve/", ApproveSuperAdminInviteView.as_view()),
