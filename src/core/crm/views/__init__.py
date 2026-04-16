@@ -12,3 +12,4 @@ from .template_submission import TemplateSubmissionViewSet
 from .send_template_message import SendTemplateMessageView
 from .category import MessageCategoryViewSet, CategoryExampleViewSet
 from core.crm.views.metrics import MetricsView
+from .dispatch import DispatchViewSet

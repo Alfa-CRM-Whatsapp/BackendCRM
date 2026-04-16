@@ -5,3 +5,4 @@ from .chat import Chat
 from .category import MessageCategory, CategoryExample
 from .templates import WhatsAppTemplate, TemplateComponent, TemplateParameter, TemplateButton
 from .template_submission import TemplateSubmission
+from .dispatch import Dispatch

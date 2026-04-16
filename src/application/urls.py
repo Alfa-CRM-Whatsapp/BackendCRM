@@ -39,6 +39,7 @@ from core.crm.views import (
     MessageCategoryViewSet,
     CategoryExampleViewSet,
     MetricsView,
+    DispatchViewSet,
 )
 
 router = DefaultRouter()
@@ -57,6 +58,7 @@ router.register(r'template-buttons', TemplateButtonViewSet, basename='template-b
 router.register(r'template-submissions', TemplateSubmissionViewSet, basename='template-submission')
 router.register(r'message-categories', MessageCategoryViewSet, basename='message-category')
 router.register(r'category-examples', CategoryExampleViewSet, basename='category-example')
+router.register(r'dispatches', DispatchViewSet, basename='dispatch')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
