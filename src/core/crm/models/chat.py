@@ -4,6 +4,7 @@ from core.crm.models import ContactWhatsapp, WhatsappNumber
 class Chat(models.Model):
     contact = models.ForeignKey(ContactWhatsapp, on_delete=models.CASCADE, related_name="chats")
     from_number = models.ForeignKey(WhatsappNumber, on_delete=models.CASCADE, related_name="chats")
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         unique_together = ("contact", "from_number")

@@ -13,6 +13,7 @@ class ChatSerializer(serializers.ModelSerializer):
             'id',
             'contact',
             'from_number',
+            'created_at',
         ]
         
 class ChatCreateSerializer(serializers.ModelSerializer):
@@ -37,6 +38,7 @@ class ChatRetrieveSerializer(serializers.ModelSerializer):
             'contact',
             'from_number',
             'messages',
+            'created_at',
         ]
 
     def get_messages(self, obj):

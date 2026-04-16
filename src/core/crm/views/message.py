@@ -6,7 +6,7 @@ from core.crm.serializers import WhatsappMessageListSerializer, WhatsappMessageC
 from django.conf import settings
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
-from core.crm.filters import WhatsappMessageFilter
+from core.crm.filters import WhatsappMessageFilter, WhatsappMessageByNumberFilter
 from django_filters.rest_framework import DjangoFilterBackend
 
 class WhatsappMessageView(viewsets.ModelViewSet):
@@ -23,6 +23,8 @@ class WhatsappMessageView(viewsets.ModelViewSet):
     
 class WhatsappMessageByNumberView(ListAPIView):
     serializer_class = WhatsappMessageListSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = WhatsappMessageByNumberFilter
 
     def get_queryset(self):
         number_id = self.kwargs["number_id"]
@@ -36,6 +38,8 @@ class WhatsappMessageByNumberView(ListAPIView):
     
 class WhatsappMessageByNumberAndContactView(ListAPIView):
     serializer_class = WhatsappMessageListSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = WhatsappMessageByNumberFilter
 
     def get_queryset(self):
         number_id = self.kwargs["number_id"]
