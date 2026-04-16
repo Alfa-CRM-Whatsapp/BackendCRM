@@ -5,10 +5,11 @@ from django.conf import settings
 from rest_framework.response import Response
 
 class RegisterWhatsappNumber(APIView):
-
     def post(self, request):
 
         phone = request.data["phone"]
+        phone_name = request.data.get("name", "CRM")
+        phone_cc = request.data.get("cc", "55")
 
         r = requests.post(
             f"https://graph.facebook.com/v19.0/{settings.WABA_ID}/phone_numbers",
@@ -16,9 +17,9 @@ class RegisterWhatsappNumber(APIView):
                 "Authorization": f"Bearer {settings.ACCESS_TOKEN}"
             },
             data={
-                "cc": "55",
+                "cc": phone_cc,
                 "phone_number": phone,
-                "verified_name": "CRM"
+                "verified_name": phone_name
             }
         )
 
@@ -28,8 +29,9 @@ class RegisterWhatsappNumber(APIView):
             return Response(data, status=400)
 
         number = WhatsappNumber.objects.create(
-            phone=phone,
+            display_phone_number=phone,
             phone_number_id=data["id"],
+            name=phone_name,
             verified=False
         )
 

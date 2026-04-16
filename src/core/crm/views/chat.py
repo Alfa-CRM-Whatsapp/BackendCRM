@@ -2,6 +2,7 @@ from rest_framework import viewsets
 from core.crm.models import Chat, WhatsappMessage, OutboundWhatsappMessage
 from core.crm.serializers import ChatSerializer, ChatRetrieveSerializer, ChatCreateSerializer
 from rest_framework.response import Response
+from rest_framework.decorators import action
 from django.db.models import Q
 
 class ChatViewSet(viewsets.ModelViewSet):
@@ -194,3 +195,9 @@ class MyChatsViewSet(viewsets.ReadOnlyModelViewSet):
             queryset = queryset.filter(from_number_id=number_id)
 
         return queryset.order_by("-id")
+
+    @action(detail=False, methods=['get'], url_path='by-contact/(?P<contact_id>[^/.]+)')
+    def by_contact(self, request, contact_id=None):
+        queryset = self.get_queryset().filter(contact_id=contact_id)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)

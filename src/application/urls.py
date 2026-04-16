@@ -72,6 +72,7 @@ urlpatterns = [
     path("api/verify-number/", VerifyWhatsappNumber.as_view()),
     path("api/register-number/", RegisterWhatsappNumber.as_view()),
     path("api/my-chats/", MyChatsViewSet.as_view({"get": "list"}), name="my-chats"),
+    path("api/my-chats/by-contact/<int:contact_id>/", MyChatsViewSet.as_view({"get": "by_contact"}), name="my-chats-by-contact"),
     path('api/resend-token/', ResendSuperAdminInviteTokenView.as_view(), name='resend-token'),
     path('api/send-template-message/', SendTemplateMessageView.as_view(), name='send-template-message'),
     path('api/metrics/<str:metric_type>/', MetricsView.as_view(), name='metrics'),

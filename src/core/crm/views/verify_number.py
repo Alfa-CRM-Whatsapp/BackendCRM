@@ -5,9 +5,7 @@ from django.conf import settings
 from rest_framework.response import Response
 
 class VerifyWhatsappNumber(APIView):
-
     def post(self, request):
-
         phone_number_id = request.data["phone_number_id"]
         code = request.data["code"]
 
