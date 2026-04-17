@@ -29,7 +29,8 @@ class VerifyWhatsappNumber(APIView):
             )
 
             number.verified = True
-            number.save()
+            number.status = "VERIFIED"
+            number.save(update_fields=["verified", "status"])
 
         return Response(data)
     

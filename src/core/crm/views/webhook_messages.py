@@ -3,17 +3,12 @@ import json
 from django.conf import settings
 from rest_framework.views import APIView
 from django.http import HttpResponse, JsonResponse
-from django.utils import timezone
-
-from core.crm.models import (
-    WhatsappMessage,
-    WhatsappNumber,
-    ContactWhatsapp,
-    OutboundWhatsappMessage,
-    Chat,
-    WhatsAppTemplate
+from core.crm.views.webhook import (
+    handle_account_update_field,
+    handle_messages_field,
+    handle_template_category_update,
+    handle_template_status_update,
 )
-
 
 class WhatsappMessageWebhookView(APIView):
 
@@ -39,104 +34,22 @@ class WhatsappMessageWebhookView(APIView):
             field = change.get("field")
             value = change.get("value", {})
 
-            if field == "messages":
+            field_handlers = {
+                "messages": handle_messages_field,
+                "account_update": handle_account_update_field,
+                "message_template_status_update": handle_template_status_update,
+                "template_category_update": handle_template_category_update,
+            }
 
-                metadata = value.get("metadata", {})
-                phone_number_id = metadata.get("phone_number_id")
+            handler = field_handlers.get(field)
 
-                whatsapp_number = WhatsappNumber.objects.get(
-                    phone_number_id=phone_number_id
-                )
+            if handler:
+                if field == "account_update":
+                    handler(value, entry.get("id"))
+                else:
+                    handler(value)
 
-                if "messages" in value:
-
-                    message = value["messages"][0]
-                    contact_data = value["contacts"][0]
-
-                    contact_name = contact_data["profile"]["name"]
-                    wa_id = contact_data["wa_id"]
-                    number = message["from"]
-
-                    message_id = message["id"]
-                    message_type = message["type"]
-                    messaging_product = value["messaging_product"]
-
-                    contact, _ = ContactWhatsapp.objects.get_or_create(
-                        wa_id=wa_id,
-                        defaults={
-                            "profile_name": contact_name,
-                            "number": number,
-                        }
-                    )
-
-                    chat, _ = Chat.objects.get_or_create(
-                        contact=contact,
-                        from_number=whatsapp_number
-                    )
-
-                    WhatsappMessage.objects.create(
-                        id_message=message_id,
-                        type=message_type,
-                        messaging_product=messaging_product,
-                        contact=contact,
-                        from_number=whatsapp_number,
-                        chat=chat,
-                        messages=message
-                    )
-
-                    print("📨 Mensagem salva e enviada ao signal")
-
-                elif "statuses" in value:
-
-                    status_data = value["statuses"][0]
-
-                    message_id = status_data["id"]
-                    status_value = status_data["status"]
-
-                    updated = OutboundWhatsappMessage.objects.filter(
-                        id_message=message_id
-                    ).update(
-                        status=status_value
-                    )
-
-                    print(f"📬 Status atualizado: {message_id} -> {status_value}")
-
-            elif field == "message_template_status_update":
-                template_id = value.get("message_template_id")
-                status = value.get("event")
-                reason = value.get("reason")
-
-                template = WhatsAppTemplate.objects.filter(
-                    meta_template_id=template_id
-                ).first()
-
-                if template:
-                    template.status = status
-
-                    if status == "APPROVED":
-                        template.approved_at = timezone.now()
-
-                    if status == "REJECTED":
-                        template.rejection_reason = reason
-
-                    template.save()
-
-                    print(f"📦 Template atualizado: {template.name} -> {status}")
-
-            elif field == "template_category_update":
-
-                template_id = value.get("message_template_id")
-                new_category = value.get("new_category")
-
-                template = WhatsAppTemplate.objects.filter(
-                    meta_template_id=template_id
-                ).first()
-
-                if template and new_category:
-                    template.category = new_category.lower()
-                    template.save()
-
-                    print(f"🔄 Categoria atualizada: {template.name} -> {new_category}")
+            return JsonResponse({"status": "ok"})
 
         except Exception as e:
             print("❌ Erro ao processar webhook:", str(e))
