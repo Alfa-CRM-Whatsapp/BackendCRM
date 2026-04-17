@@ -4,6 +4,7 @@ from .number import WhatsappNumberView
 from .send_message import OutboundWhatsappMessageViewSet
 from .messages_by_contact import WhatsappMessageByNumberAndContactView
 from .chat import ChatViewSet, MyChatsViewSet
+from .chat_window import ChatWindowValidationView
 from .webhook_messages import WhatsappMessageWebhookView
 from .verify_number import VerifyWhatsappNumber
 from .register_number import RegisterWhatsappNumber, RegisterWhatsappNumberOnMeta
