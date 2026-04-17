@@ -37,13 +37,15 @@ class RegisterWhatsappNumber(APIView):
 
         print(number.phone_number_id + "Numero Criado")
 
-        requests.post(
+        rc = requests.post(
             f"https://graph.facebook.com/v19.0/{data['id']}/request_code",
             headers={
                 "Authorization": f"Bearer {settings.ACCESS_TOKEN}"
             },
             data={"code_method": "SMS"}
         )
+
+        print(rc.json())
 
         return Response({
             "status": "code_sent",
