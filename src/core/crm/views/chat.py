@@ -163,6 +163,7 @@ class ChatViewSet(viewsets.ModelViewSet):
                 "content": msg.message,
                 "status": msg.status,
                 "created_at": msg.created_at,
+                "with_template": msg.with_template,
                 "category": None,
                 "category_confidence": None
             })

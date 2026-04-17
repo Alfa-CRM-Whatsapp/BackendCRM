@@ -86,6 +86,7 @@ class OutboundWhatsappMessageListSerializer(serializers.ModelSerializer):
             'id_message',
             'message',
             'status',
+            'with_template',
             'contact',
             'contact_name',
             'contact_number',
@@ -123,5 +124,6 @@ class OutboundWhatsappMessageCreateSerializer(serializers.Serializer):
             from_number=from_number,
             chat=chat,
             message=validated_data['message'],
-            status="sent"
+            status="sent",
+            with_template=False,
         )

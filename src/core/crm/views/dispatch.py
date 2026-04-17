@@ -166,6 +166,7 @@ class DispatchViewSet(viewsets.ModelViewSet):
                 chat=chat,
                 message=message_json,
                 status="sent",
+                with_template=True,
                 raw_response={
                     "mode": "local_dispatch",
                     "executed_at": now.isoformat(),

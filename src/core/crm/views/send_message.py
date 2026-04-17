@@ -66,17 +66,11 @@ class OutboundWhatsappMessageViewSet(viewsets.ModelViewSet):
 
             message_id = response_data["messages"][0]["id"]
 
-            # =========================
-            # 🔥 GARANTE CHAT
-            # =========================
             chat, _ = Chat.objects.get_or_create(
                 contact=contact,
                 from_number=whatsapp_number
             )
 
-            # =========================
-            # 🔥 SALVANDO IGUAL INBOUND
-            # =========================
             message_json = {
                 "id": message_id,
                 "type": payload.get("type"),

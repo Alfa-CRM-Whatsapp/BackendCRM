@@ -2,7 +2,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.conf import settings
+import uuid
 import requests
+from core.crm.models import Chat, OutboundWhatsappMessage, WhatsappNumber
+from core.crm.serializers import OutboundWhatsappMessageListSerializer
 from core.crm.serializers import SendTemplateMessageSerializer
 
 def build_send_components(template, parameters: dict):
@@ -70,8 +73,44 @@ class SendTemplateMessageView(APIView):
 
         response = requests.post(url, json=payload, headers=headers)
 
+        response_data = response.json()
+
+        if response.status_code != 200:
+            return Response({
+                "meta_status": response.status_code,
+                "meta_response": response_data,
+                "payload_sent": payload
+            }, status=response.status_code)
+
+        try:
+            from_number = WhatsappNumber.objects.get(phone_number_id=settings.PHONE_NUMBER_ID)
+        except WhatsappNumber.DoesNotExist:
+            return Response(
+                {"error": "Numero remetente nao encontrado para PHONE_NUMBER_ID configurado."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        chat, _ = Chat.objects.get_or_create(
+            contact=contact,
+            from_number=from_number,
+        )
+
+        message_id = response_data.get("messages", [{}])[0].get("id") or f"template-send-{uuid.uuid4().hex}"
+
+        outbound = OutboundWhatsappMessage.objects.create(
+            id_message=message_id,
+            contact=contact,
+            from_number=from_number,
+            chat=chat,
+            message=payload,
+            status="sent",
+            with_template=True,
+            raw_response=response_data,
+        )
+
         return Response({
             "meta_status": response.status_code,
-            "meta_response": response.json(),
-            "payload_sent": payload
+            "meta_response": response_data,
+            "payload_sent": payload,
+            "data": OutboundWhatsappMessageListSerializer(outbound).data,
         }, status=200)

@@ -86,6 +86,8 @@ class OutboundWhatsappMessage(models.Model):
         default="sent"
     )
 
+    with_template = models.BooleanField(default=False)
+
     raw_response = models.JSONField(null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
