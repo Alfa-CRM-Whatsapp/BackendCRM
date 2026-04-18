@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from core.crm.utils.metrics import (
+    get_dashboard_metrics,
     get_categories_metrics_cards,
     get_messages_metrics_cards,
     get_numbers_metrics_cards,
@@ -11,6 +12,7 @@ from core.crm.utils.metrics import (
 
 class MetricsView(APIView):
     METRIC_HANDLERS = {
+        "dashboard": get_dashboard_metrics,
         "categories": get_categories_metrics_cards,
         "numbers": get_numbers_metrics_cards,
         "messages": get_messages_metrics_cards,
@@ -22,15 +24,26 @@ class MetricsView(APIView):
         if not handler:
             return Response(
                 {
-                    "detail": "Tipo de metrica invalido. Use: categories, numbers ou messages.",
+                    "detail": "Tipo de metrica invalido. Use: dashboard, categories, numbers ou messages.",
                     "available": list(self.METRIC_HANDLERS.keys()),
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        metric_name = (metric_type or "").lower()
+        data = handler()
+
+        if metric_name == "dashboard":
+            return Response(
+                {
+                    "metric": metric_name,
+                    **data,
+                }
+            )
+
         return Response(
             {
-                "metric": metric_type.lower(),
-                "cards": handler(),
+                "metric": metric_name,
+                "cards": data,
             }
         )
