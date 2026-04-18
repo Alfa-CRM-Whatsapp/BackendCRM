@@ -3,7 +3,20 @@
 - Route: /api/contacts/
 - View: ContactWhatsappView
 
-## Description
+## Codigo Da View
 
-TODO: documentar comportamento, payloads, respostas e regras de negocio desta rota.
+Fonte: src\core\crm\views\contact.py
 
+```python
+from rest_framework import viewsets
+from core.crm.models import ContactWhatsapp
+from core.crm.serializers import ContactWhatsappListSerializer
+
+class ContactWhatsappView(viewsets.ModelViewSet):
+    queryset = ContactWhatsapp.objects.all()
+    
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return ContactWhatsappListSerializer
+        return ContactWhatsappListSerializer
+```
