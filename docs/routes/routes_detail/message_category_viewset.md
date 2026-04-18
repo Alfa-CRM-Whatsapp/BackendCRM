@@ -114,3 +114,36 @@ class CategoryExampleViewSet(ModelViewSet):
 
 
 ```
+
+## Metodos Aceitos
+
+### GET
+- Lista: `GET /api/message-categories/`
+- Detalhe: `GET /api/message-categories/{id}/`
+- Query Params:
+- `whatsapp_number`: Filtra por numero.
+- Rota Extra:
+- `GET /api/message-categories/by-number/{number_id}/all/`
+
+### POST
+- Criacao: `POST /api/message-categories/`
+- Payload:
+```json
+{
+  "whatsapp_number": 1,
+  "name": "Suporte",
+  "description": "Mensagens de suporte",
+  "color": "#6c757d",
+  "is_active": true
+}
+```
+
+### PUT
+- Atualizacao Completa: `PUT /api/message-categories/{id}/`
+
+### PATCH
+- Atualizacao Parcial: `PATCH /api/message-categories/{id}/`
+
+### DELETE
+- Remocao: `DELETE /api/message-categories/{id}/`
+

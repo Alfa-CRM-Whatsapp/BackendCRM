@@ -213,3 +213,34 @@ class MyChatsViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 ```
+
+## Metodos Aceitos
+
+### GET
+- Lista: `GET /api/chats/`
+- Detalhe: `GET /api/chats/{id}/`
+- Query Params No Detalhe:
+- `category`: Nome ou ID da categoria (aceita lista separada por virgula).
+- `direction`: `inbound`, `outbound` ou ambos (`inbound,outbound`).
+- `search` ou `text` ou `q`: Busca textual no conteudo da mensagem.
+- `year`, `month`, `day`: Filtro por data.
+
+### POST
+- Criacao: `POST /api/chats/`
+- Payload:
+```json
+{
+  "contact": 1,
+  "from_number": 1
+}
+```
+
+### PUT
+- Atualizacao Completa: `PUT /api/chats/{id}/`
+
+### PATCH
+- Atualizacao Parcial: `PATCH /api/chats/{id}/`
+
+### DELETE
+- Remocao: `DELETE /api/chats/{id}/`
+

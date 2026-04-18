@@ -204,3 +204,16 @@ class ResendSuperAdminInviteTokenView(APIView):
             "code_status": status.HTTP_200_OK
         })
 ```
+
+## Metodos Aceitos
+
+### POST
+- Aprovacao De Convite: `POST /api/superadmin/approve/`
+- Payload:
+```json
+{
+  "email": "novo-super@empresa.com",
+  "token": "123456"
+}
+```
+

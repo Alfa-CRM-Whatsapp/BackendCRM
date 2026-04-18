@@ -46,3 +46,13 @@ class MetricsView(APIView):
         )
 
 ```
+
+## Metodos Aceitos
+
+### GET
+- Consulta De Metricas: `GET /api/metrics/{metric_type}/`
+- Parametro De Rota:
+- `metric_type`: `categories`, `numbers` ou `messages`.
+- Exemplo:
+`GET /api/metrics/messages/`
+

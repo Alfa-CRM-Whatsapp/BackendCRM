@@ -20,3 +20,37 @@ class WhatsappNumberView(viewsets.ModelViewSet):
             return WhatsappNumberSerializer
         return WhatsappNumberSerializer
 ```
+
+## Metodos Aceitos
+
+### GET
+- Lista: `GET /api/numbers/`
+- Detalhe: `GET /api/numbers/{id}/`
+
+### POST
+- Criacao: `POST /api/numbers/`
+- Payload Minimo:
+```json
+{
+  "display_phone_number": "5511999999999",
+  "phone_number_id": "123456789",
+  "name": "Numero Principal"
+}
+```
+
+### PUT
+- Atualizacao Completa: `PUT /api/numbers/{id}/`
+
+### PATCH
+- Atualizacao Parcial: `PATCH /api/numbers/{id}/`
+- Exemplo:
+```json
+{
+  "status": "VERIFIED",
+  "verified": true
+}
+```
+
+### DELETE
+- Remocao: `DELETE /api/numbers/{id}/`
+

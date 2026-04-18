@@ -95,3 +95,10 @@ urlpatterns = [
     path('api/metrics/<str:metric_type>/', MetricsView.as_view(), name='metrics'),
 ]
 ```
+
+## Metodos Aceitos
+
+### GET
+- Swagger UI: `GET /api/docs/`
+- Uso: Navegar e testar os endpoints da API visualmente.
+

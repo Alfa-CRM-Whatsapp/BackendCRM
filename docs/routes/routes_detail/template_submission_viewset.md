@@ -174,3 +174,28 @@ class TemplateSubmissionViewSet(viewsets.ModelViewSet):
             "meta_response": data
         }, status=201)
 ```
+
+## Metodos Aceitos
+
+### GET
+- Lista: `GET /api/template-submissions/`
+- Detalhe: `GET /api/template-submissions/{id}/`
+
+### POST
+- Submissao Para Meta: `POST /api/template-submissions/`
+- Payload:
+```json
+{
+  "template": 1
+}
+```
+
+### PUT
+- Atualizacao Completa: `PUT /api/template-submissions/{id}/`
+
+### PATCH
+- Atualizacao Parcial: `PATCH /api/template-submissions/{id}/`
+
+### DELETE
+- Remocao: `DELETE /api/template-submissions/{id}/`
+

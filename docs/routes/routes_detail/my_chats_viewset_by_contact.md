@@ -213,3 +213,11 @@ class MyChatsViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 ```
+
+## Metodos Aceitos
+
+### GET
+- Lista Por Contato: `GET /api/my-chats/by-contact/{contact_id}/`
+- Exemplo:
+`GET /api/my-chats/by-contact/12/`
+

@@ -285,3 +285,22 @@ class DispatchViewSet(viewsets.ModelViewSet):
 
         return Response(execution_data, status=status.HTTP_200_OK)
 ```
+
+## Metodos Aceitos
+
+### POST
+- Disparo Direto: `POST /api/dispatch/`
+- Payload:
+```json
+{
+  "from_number": 1,
+  "contacts": [1, 2],
+  "template": {
+    "id": 5,
+    "params": {
+      "nome": "Maria"
+    }
+  }
+}
+```
+

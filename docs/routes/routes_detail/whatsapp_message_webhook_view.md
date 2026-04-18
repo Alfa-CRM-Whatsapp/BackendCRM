@@ -66,3 +66,22 @@ class WhatsappMessageWebhookView(APIView):
 
         return JsonResponse({"status": "ok"})
 ```
+
+## Metodos Aceitos
+
+### GET
+- Verificacao De Webhook: `GET /api/webhook/whatsapp/`
+- Query Params:
+- `hub.mode`
+- `hub.verify_token`
+- `hub.challenge`
+
+### POST
+- Recepcao De Eventos Da Meta: `POST /api/webhook/whatsapp/`
+- Payload: JSON de webhook Meta contendo `entry`, `changes`, `field` e `value`.
+- Campos Tratados:
+- `messages`
+- `account_update`
+- `message_template_status_update`
+- `template_category_update`
+

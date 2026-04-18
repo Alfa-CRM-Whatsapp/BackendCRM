@@ -94,3 +94,33 @@ class TemplateButtonViewSet(viewsets.ModelViewSet):
     serializer_class = TemplateButtonSerializer
 
 ```
+
+## Metodos Aceitos
+
+### GET
+- Lista: `GET /api/template-parameters/`
+- Detalhe: `GET /api/template-parameters/{id}/`
+
+### POST
+- Criacao: `POST /api/template-parameters/`
+- Payload:
+```json
+{
+  "component": 1,
+  "name": "nome",
+  "param_type": "text",
+  "example_value": "Joao",
+  "order": 1
+}
+```
+- Regra: Use `name` ou `position`.
+
+### PUT
+- Atualizacao Completa: `PUT /api/template-parameters/{id}/`
+
+### PATCH
+- Atualizacao Parcial: `PATCH /api/template-parameters/{id}/`
+
+### DELETE
+- Remocao: `DELETE /api/template-parameters/{id}/`
+

@@ -67,3 +67,39 @@ class WhatsappMessageByNumberAndContactView(ListAPIView):
   
 
 ```
+
+## Metodos Aceitos
+
+### GET
+- Lista: `GET /api/messages/`
+- Query Params:
+- `category`: Um ou mais nomes de categoria.
+- `year`: Ano de criacao.
+- `month`: Mes de criacao.
+- `day`: Dia de criacao.
+
+### POST
+- Criacao: `POST /api/messages/`
+- Payload:
+```json
+{
+  "id_message": "wamid.XXX",
+  "type": "text",
+  "messaging_product": "whatsapp",
+  "contact": 1,
+  "from_number": 1,
+  "messages": {
+    "text": {"body": "Ola"}
+  }
+}
+```
+
+### PUT
+- Atualizacao Completa: `PUT /api/messages/{id}/`
+
+### PATCH
+- Atualizacao Parcial: `PATCH /api/messages/{id}/`
+
+### DELETE
+- Remocao: `DELETE /api/messages/{id}/`
+

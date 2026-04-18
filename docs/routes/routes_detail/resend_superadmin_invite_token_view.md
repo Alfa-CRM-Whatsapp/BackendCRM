@@ -204,3 +204,15 @@ class ResendSuperAdminInviteTokenView(APIView):
             "code_status": status.HTTP_200_OK
         })
 ```
+
+## Metodos Aceitos
+
+### POST
+- Reenvio De Token: `POST /api/resend-token/`
+- Payload:
+```json
+{
+  "email": "novo-super@empresa.com"
+}
+```
+

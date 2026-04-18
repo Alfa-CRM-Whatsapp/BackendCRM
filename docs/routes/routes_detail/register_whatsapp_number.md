@@ -117,3 +117,18 @@ class RegisterWhatsappNumberOnMeta(APIView):
     
 
 ```
+
+## Metodos Aceitos
+
+### POST
+- Registro Inicial E Solicitacao De Codigo: `POST /api/register-number/`
+- Payload:
+```json
+{
+  "phone": "11999999999",
+  "name": "CRM",
+  "cc": "55",
+  "language": "pt_BR"
+}
+```
+

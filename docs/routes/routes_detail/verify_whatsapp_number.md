@@ -46,3 +46,16 @@ class VerifyWhatsappNumber(APIView):
     
 
 ```
+
+## Metodos Aceitos
+
+### POST
+- Verificacao De Codigo: `POST /api/verify-number/`
+- Payload:
+```json
+{
+  "phone_number_id": "123456789",
+  "code": "123456"
+}
+```
+

@@ -117,3 +117,16 @@ class RegisterWhatsappNumberOnMeta(APIView):
     
 
 ```
+
+## Metodos Aceitos
+
+### POST
+- Registro Final Na Meta: `POST /api/register-number-on-meta/`
+- Payload:
+```json
+{
+  "phone_number_id": "123456789",
+  "pin": "123456"
+}
+```
+

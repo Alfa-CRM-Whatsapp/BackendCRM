@@ -29,3 +29,31 @@ class UserPreferencesViewSet(viewsets.ModelViewSet):
     queryset = UserPreferencesSerializer.Meta.model.objects.all()
     serializer_class = UserPreferencesSerializer
 ```
+
+## Metodos Aceitos
+
+### GET
+- Lista: `GET /api/users/`
+- Detalhe: `GET /api/users/{id}/`
+
+### POST
+- Criacao: `POST /api/users/`
+- Payload:
+```json
+{
+  "email": "novo@empresa.com",
+  "password": "SenhaForte123"
+}
+```
+
+### PUT
+- Atualizacao Completa: `PUT /api/users/{id}/`
+- Payload: Mesmo formato da representacao do usuario listada pela API.
+
+### PATCH
+- Atualizacao Parcial: `PATCH /api/users/{id}/`
+- Payload: Campos parciais do usuario.
+
+### DELETE
+- Remocao: `DELETE /api/users/{id}/`
+

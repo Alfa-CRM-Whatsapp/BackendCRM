@@ -95,3 +95,10 @@ urlpatterns = [
     path('api/metrics/<str:metric_type>/', MetricsView.as_view(), name='metrics'),
 ]
 ```
+
+## Metodos Aceitos
+
+### GET
+- Schema OpenAPI: `GET /api/schema/`
+- Uso: Exportar/consultar especificacao da API.
+

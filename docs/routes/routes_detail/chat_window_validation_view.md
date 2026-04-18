@@ -84,3 +84,20 @@ class ChatWindowValidationView(APIView):
         )
 
 ```
+
+## Metodos Aceitos
+
+### POST
+- Validacao De Janela 24h: `POST /api/chat-window-validation/`
+- Parametros Aceitos:
+- Body JSON com `chat_id`.
+- Ou Query Param `chat_id`.
+- Exemplo Body:
+```json
+{
+  "chat_id": 10
+}
+```
+- Exemplo Query:
+`POST /api/chat-window-validation/?chat_id=10`
+

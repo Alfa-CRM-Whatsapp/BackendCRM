@@ -20,3 +20,30 @@ class ContactWhatsappView(viewsets.ModelViewSet):
             return ContactWhatsappListSerializer
         return ContactWhatsappListSerializer
 ```
+
+## Metodos Aceitos
+
+### GET
+- Lista: `GET /api/contacts/`
+- Detalhe: `GET /api/contacts/{id}/`
+
+### POST
+- Criacao: `POST /api/contacts/`
+- Payload:
+```json
+{
+  "profile_name": "Cliente Teste",
+  "wa_id": "5511999999999",
+  "number": "5511999999999"
+}
+```
+
+### PUT
+- Atualizacao Completa: `PUT /api/contacts/{id}/`
+
+### PATCH
+- Atualizacao Parcial: `PATCH /api/contacts/{id}/`
+
+### DELETE
+- Remocao: `DELETE /api/contacts/{id}/`
+

@@ -95,3 +95,16 @@ urlpatterns = [
     path('api/metrics/<str:metric_type>/', MetricsView.as_view(), name='metrics'),
 ]
 ```
+
+## Metodos Aceitos
+
+### POST
+- Refresh JWT: `POST /api/token/refresh/`
+- Payload:
+```json
+{
+  "refresh": "<refresh_token>"
+}
+```
+- Retorno: Novo `access` token.
+

@@ -114,3 +114,34 @@ class CategoryExampleViewSet(ModelViewSet):
 
 
 ```
+
+## Metodos Aceitos
+
+### GET
+- Lista: `GET /api/category-examples/`
+- Detalhe: `GET /api/category-examples/{id}/`
+- Query Params:
+- `category`: Filtra por categoria.
+- Rota Extra:
+- `GET /api/category-examples/by-category/{category_id}/`
+
+### POST
+- Criacao: `POST /api/category-examples/`
+- Payload:
+```json
+{
+  "category": 1,
+  "text": "Preciso de ajuda",
+  "is_positive": true
+}
+```
+
+### PUT
+- Atualizacao Completa: `PUT /api/category-examples/{id}/`
+
+### PATCH
+- Atualizacao Parcial: `PATCH /api/category-examples/{id}/`
+
+### DELETE
+- Remocao: `DELETE /api/category-examples/{id}/`
+

@@ -285,3 +285,19 @@ class DispatchViewSet(viewsets.ModelViewSet):
 
         return Response(execution_data, status=status.HTTP_200_OK)
 ```
+
+## Metodos Aceitos
+
+### POST
+- Reexecucao: `POST /api/dispatch/{id}/execute/`
+- Payload:
+```json
+{
+  "from_number": 1,
+  "parameter_overrides": {
+    "nome": "Carlos"
+  }
+}
+```
+- Regra: A rota reexecuta dispatch ja executado anteriormente.
+

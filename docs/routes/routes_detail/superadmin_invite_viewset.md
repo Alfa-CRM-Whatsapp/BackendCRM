@@ -204,3 +204,29 @@ class ResendSuperAdminInviteTokenView(APIView):
             "code_status": status.HTTP_200_OK
         })
 ```
+
+## Metodos Aceitos
+
+### GET
+- Lista: `GET /api/superadmin-invites/`
+- Detalhe: `GET /api/superadmin-invites/{id}/`
+
+### POST
+- Criacao De Convite: `POST /api/superadmin-invites/`
+- Payload:
+```json
+{
+  "email": "novo-super@empresa.com",
+  "password": "SenhaTemporaria123"
+}
+```
+
+### PUT
+- Atualizacao Completa: `PUT /api/superadmin-invites/{id}/`
+
+### PATCH
+- Atualizacao Parcial: `PATCH /api/superadmin-invites/{id}/`
+
+### DELETE
+- Remocao: `DELETE /api/superadmin-invites/{id}/`
+

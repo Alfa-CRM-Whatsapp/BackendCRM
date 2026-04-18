@@ -29,3 +29,17 @@ class UserPreferencesViewSet(viewsets.ModelViewSet):
     queryset = UserPreferencesSerializer.Meta.model.objects.all()
     serializer_class = UserPreferencesSerializer
 ```
+
+## Metodos Aceitos
+
+### POST
+- Login JWT: `POST /api/token/`
+- Payload:
+```json
+{
+  "email": "admin@empresa.com",
+  "password": "SuaSenha"
+}
+```
+- Retorno: `access`, `refresh` e objeto `user` enriquecido com preferencias.
+

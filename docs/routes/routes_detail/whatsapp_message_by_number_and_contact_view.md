@@ -67,3 +67,17 @@ class WhatsappMessageByNumberAndContactView(ListAPIView):
   
 
 ```
+
+## Metodos Aceitos
+
+### GET
+- Lista Por Numero E Contato: `GET /api/messages/number/{number_id}/contact/{wa_id}/`
+- Query Params:
+- `category`: Categoria.
+- `text`: Texto para busca no body.
+- `year`: Ano.
+- `month`: Mes.
+- `day`: Dia.
+- Exemplo:
+`GET /api/messages/number/1/contact/5511999999999/?text=suporte`
+

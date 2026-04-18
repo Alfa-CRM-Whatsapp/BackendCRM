@@ -115,3 +115,33 @@ class OutboundWhatsappMessageViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 ```
+
+## Metodos Aceitos
+
+### GET
+- Lista: `GET /api/sended-messages/`
+- Detalhe: `GET /api/sended-messages/{id}/`
+
+### POST
+- Envio De Mensagem: `POST /api/sended-messages/`
+- Payload:
+```json
+{
+  "contact": 1,
+  "from_number": 1,
+  "message": {
+    "type": "text",
+    "text": {"body": "Ola, tudo bem?"}
+  }
+}
+```
+
+### PUT
+- Atualizacao Completa: `PUT /api/sended-messages/{id}/`
+
+### PATCH
+- Atualizacao Parcial: `PATCH /api/sended-messages/{id}/`
+
+### DELETE
+- Remocao: `DELETE /api/sended-messages/{id}/`
+

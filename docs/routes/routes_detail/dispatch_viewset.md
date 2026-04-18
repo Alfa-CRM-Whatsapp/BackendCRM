@@ -285,3 +285,42 @@ class DispatchViewSet(viewsets.ModelViewSet):
 
         return Response(execution_data, status=status.HTTP_200_OK)
 ```
+
+## Metodos Aceitos
+
+### GET
+- Lista: `GET /api/dispatches/`
+- Detalhe: `GET /api/dispatches/{id}/`
+
+### POST
+- Criacao E Execucao Direta: `POST /api/dispatches/`
+- Payload:
+```json
+{
+  "from_number": 1,
+  "contacts": [1, 2, 3],
+  "template": {
+    "id": 5,
+    "params": {
+      "nome": "Cliente"
+    }
+  }
+}
+```
+
+### PUT
+- Atualizacao Completa: `PUT /api/dispatches/{id}/`
+- Payload:
+```json
+{
+  "template_id": 5,
+  "contact_ids": [1, 2]
+}
+```
+
+### PATCH
+- Atualizacao Parcial: `PATCH /api/dispatches/{id}/`
+
+### DELETE
+- Remocao: `DELETE /api/dispatches/{id}/`
+

@@ -125,3 +125,20 @@ class SendTemplateMessageView(APIView):
             "data": OutboundWhatsappMessageListSerializer(outbound).data,
         }, status=200)
 ```
+
+## Metodos Aceitos
+
+### POST
+- Envio De Mensagem Template: `POST /api/send-template-message/`
+- Payload:
+```json
+{
+  "contact": 1,
+  "template": 2,
+  "parameters": {
+    "nome": "Joao",
+    "pedido": "12345"
+  }
+}
+```
+

@@ -213,3 +213,13 @@ class MyChatsViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 ```
+
+## Metodos Aceitos
+
+### GET
+- Lista Do Endpoint Dedicado: `GET /api/my-chats/`
+- Query Params:
+- `number_id`: Filtra chats por numero de origem.
+- Exemplo:
+`GET /api/my-chats/?number_id=1`
+
