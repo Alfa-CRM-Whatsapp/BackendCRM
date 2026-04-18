@@ -12,7 +12,6 @@ Documentacao modular criada na pasta docs:
 | [Technologies](docs/technologies/INDEX.md) | Visao das tecnologias e bibliotecas utilizadas no backend. |
 | [Models](docs/models/INDEX.md) | Documentacao das entidades de dominio e estrutura de dados persistida. |
 | [Serializers](docs/serializers/INDEX.md) | Regras de validacao e transformacao de payloads da API. |
-| [Views](docs/views/INDEX.md) | Endpoints e fluxos HTTP implementados no backend. |
 | [Routes](docs/routes/INDEX.md) | Mapeamento de rotas disponiveis na API. |
 | [Functions](docs/functions/INDEX.md) | Funcoes utilitarias e regras de negocio auxiliares. |
 
@@ -87,26 +86,26 @@ src/
 
 ### Camadas no dominio CRM
 
-- models: entidades e regras persistidas
-- serializers: validacao e transformacao de payload
-- views: endpoints HTTP (CRUD, integracoes, acoes de negocio)
-- webhook handlers: processamento por tipo de evento da Meta
-- utils/metrics: consolidacao de metricas para dashboards
+- Models: entidades e regras persistidas
+- Serializers: validacao e transformacao de payload
+- Views: endpoints HTTP (CRUD, integracoes, acoes de negocio)
+- Webhook handlers: processamento por tipo de evento da Meta
+- Utils/metrics: consolidacao de metricas para dashboards
 
 ### Padrões adotados
 
 - API REST com DRF
 - ViewSets para recursos CRUD
 - APIViews para fluxos especificos (ex.: verify/register, webhook, validacoes)
-- separacao de handlers de webhook por tipo de field
-- persistencia de payloads de integracao para rastreabilidade
+- Separacao de handlers de webhook por tipo de field
+- Persistencia de payloads de integracao para rastreabilidade
 
 ## Banco de dados
 
 Configuracao por variavel MODE:
 
 - MODE=PROD: usa PostgreSQL via DATABASE_URL
-- qualquer outro valor: usa SQLite local
+- Qualquer outro valor: usa SQLite local
 
 Exemplo de producao:
 
