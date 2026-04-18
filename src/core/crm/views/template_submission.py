@@ -35,15 +35,28 @@ class TemplateSubmissionViewSet(viewsets.ModelViewSet):
         components = []
 
         for comp in template.components.all().order_by("order"):
+            component_type = (comp.type or "").lower()
+
+            if component_type not in ["header", "body", "footer", "buttons"]:
+                raise ValueError(
+                    f"Tipo de componente invalido para Meta: '{comp.type}'."
+                )
 
             comp_data = {
-                "type": comp.type
+                "type": component_type
             }
 
-            if comp.type == "header":
-                comp_data["format"] = comp.header_format
+            if component_type == "header":
+                # Compatibilidade com templates antigos sem format salvo.
+                header_format = (comp.header_format or "text").lower()
+                comp_data["format"] = header_format
 
-                if comp.header_format == "text":
+                if header_format == "text":
+                    if not comp.text:
+                        raise ValueError(
+                            "Componente HEADER com format 'text' exige o campo 'text'."
+                        )
+
                     comp_data["text"] = comp.text
 
                     if comp.parameters.exists():
@@ -64,33 +77,39 @@ class TemplateSubmissionViewSet(viewsets.ModelViewSet):
                                 ]
                             }
 
-                elif comp.header_format in ["image", "video", "document"]:
+                elif header_format in ["image", "video", "document"]:
+                    if not comp.example_media_url:
+                        raise ValueError(
+                            "Componente HEADER com format 'image/video/document' exige 'example_media_url'."
+                        )
+
                     comp_data["example"] = {
                         "header_handle": [comp.example_media_url]
                     }
 
-            elif comp.type == "body":
+            elif component_type == "body":
                 comp_data["text"] = comp.text
 
                 if comp.parameters.exists():
                     comp_data["example"] = self.build_body_examples(comp, template)
 
-            elif comp.type == "footer":
+            elif component_type == "footer":
                 comp_data["text"] = comp.text
 
-            elif comp.type == "buttons":
+            elif component_type == "buttons":
                 comp_data["buttons"] = []
 
                 for btn in comp.buttons.all().order_by("order"):
+                    button_type = (btn.type or "").lower()
                     btn_data = {
-                        "type": btn.type,
+                        "type": button_type,
                         "text": btn.text
                     }
 
-                    if btn.type == "url":
+                    if button_type == "url":
                         btn_data["url"] = btn.url
 
-                    if btn.type == "phone_number":
+                    if button_type == "phone_number":
                         btn_data["phone_number"] = btn.phone_number
 
                     comp_data["buttons"].append(btn_data)
@@ -123,7 +142,16 @@ class TemplateSubmissionViewSet(viewsets.ModelViewSet):
             attempt=last_attempt
         )
 
-        components = self.build_components_for_meta(template)
+        try:
+            components = self.build_components_for_meta(template)
+        except ValueError as exc:
+            return Response(
+                {
+                    "error": str(exc),
+                    "detail": "Corrija o template antes de submeter para a Meta.",
+                },
+                status=400,
+            )
 
         payload = {
             "name": template.name,
