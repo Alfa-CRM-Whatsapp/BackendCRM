@@ -78,6 +78,32 @@ class TemplateComponentSerializer(serializers.ModelSerializer):
             "buttons",
         ]
 
+    def validate(self, data):
+        instance = getattr(self, "instance", None)
+
+        component_type = data.get("type", getattr(instance, "type", None))
+        header_format = data.get("header_format", getattr(instance, "header_format", None))
+        text = data.get("text", getattr(instance, "text", None))
+        example_media_url = data.get("example_media_url", getattr(instance, "example_media_url", None))
+
+        if component_type == "header":
+            # Default para manter compatibilidade quando format nao vier no payload.
+            if not header_format:
+                header_format = "text"
+                data["header_format"] = "text"
+
+            if header_format == "text" and not text:
+                raise serializers.ValidationError(
+                    "Para componente HEADER com format 'text', o campo 'text' e obrigatorio."
+                )
+
+            if header_format in ["image", "video", "document"] and not example_media_url:
+                raise serializers.ValidationError(
+                    "Para componente HEADER com format 'image/video/document', o campo 'example_media_url' e obrigatorio."
+                )
+
+        return data
+
 
 class WhatsAppTemplateSerializer(serializers.ModelSerializer):
 
