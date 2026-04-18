@@ -1,2 +1,2 @@
-from .user import EmailTokenObtainPairView, UserViewSet, UserPreferencesViewSet
+from .user import EmailTokenObtainPairView, UserViewSet, UserPreferencesViewSet, IsSuperAdminView
 from .admin_invite import SuperAdminInviteViewSet, ApproveSuperAdminInviteView, ResendSuperAdminInviteTokenView

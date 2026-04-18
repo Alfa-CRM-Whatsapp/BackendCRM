@@ -14,7 +14,8 @@ from core.authentication.views import (
     ApproveSuperAdminInviteView,
     SuperAdminInviteViewSet,
     UserPreferencesViewSet,
-    ResendSuperAdminInviteTokenView
+    ResendSuperAdminInviteTokenView,
+    IsSuperAdminView,
 )
 
 from core.crm.views import (
@@ -68,6 +69,7 @@ urlpatterns = [
     path('api/dispatch/<int:pk>/execute/', DispatchViewSet.as_view({'post': 'execute'}), name='dispatch-direct-execute'),
     path("api/token/", EmailTokenObtainPairView.as_view()),
     path("api/token/refresh/", TokenRefreshView.as_view()),
+    path("api/token/is-superadmin/", IsSuperAdminView.as_view(), name="token-is-superadmin"),
     path("api/superadmin/approve/", ApproveSuperAdminInviteView.as_view()),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
