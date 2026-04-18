@@ -15,6 +15,10 @@ Documentacao modular criada na pasta docs:
 | [Routes](docs/routes/INDEX.md) | Mapeamento de rotas disponiveis na API. |
 | [Functions](docs/functions/INDEX.md) | Funcoes utilitarias e regras de negocio auxiliares. |
 
+## Modelagem do projeto
+
+![Modelagem do Projeto](models.png)
+
 ## Visao geral
 
 Este projeto foi desenvolvido para centralizar o atendimento de multiplos numeros WhatsApp de uma BM verificada em um unico CRM.
@@ -39,7 +43,6 @@ dependencies = [
 	"django-cors-headers>=4.7.0",
 	"django-extensions>=4.1",
 	"pydotplus>=2.0.2",
-	"faker>=37.3.0",
 	"djangorestframework-simplejwt>=5.5.1",
 	"dj-database-url>=3.0.0",
 	"psycopg2-binary>=2.9.10",
@@ -163,11 +166,25 @@ pdm run migrate
 pdm run dev
 ```
 
-## Documentacao da API
+## Scripts PDM
 
-- Swagger UI: /api/docs/
-- Schema OpenAPI: /api/schema/
+Secao de referencia para os scripts definidos em `[tool.pdm.scripts]` no `pyproject.toml`.
 
-## Licenca
-
-Projeto interno da Alfa Manager para operacao de CRM.
+| Script | Comando executado | O que faz | Exemplo |
+| --- | --- | --- | --- |
+| `dev` | `python src/manage.py runserver` | Sobe o servidor Django em desenvolvimento. | `pdm run dev` |
+| `runserver` | `python src/manage.py runserver` | Alias equivalente ao `dev`. | `pdm run runserver` |
+| `createsuperuser` | `python src/manage.py createsuperuser` | Cria usuario administrador do Django. | `pdm run createsuperuser` |
+| `pre_migrate` | `python src/manage.py makemigrations` | Gera novas migracoes a partir das mudancas nos models. | `pdm run pre_migrate` |
+| `migrate` | `python src/manage.py migrate` | Aplica migracoes pendentes no banco de dados. | `pdm run migrate` |
+| `shell` | `python src/manage.py shell` | Abre shell padrao do Django para testes rapidos. | `pdm run shell` |
+| `shellp` | `python src/manage.py shell_plus` | Abre shell_plus (django-extensions) com imports automaticos. | `pdm run shellp` |
+| `test` | `python src/manage.py test` | Executa a suite de testes Django. | `pdm run test` |
+| `startapp` | `python src/manage.py startapp {args}` | Cria um novo app Django com nome informado. | `pdm run startapp crm_extra` |
+| `loaddata` | `python src/manage.py loaddata {args}` | Carrega fixture para o banco de dados. | `pdm run loaddata fixtures/seed.json` |
+| `dumpdata` | `python src/manage.py dumpdata {args}` | Exporta dados do banco em formato fixture JSON. | `pdm run dumpdata core.crm.Contact` |
+| `model` | `python src/manage.py graph_models -a -g -o models.png` | Gera diagrama de modelos do projeto em imagem. | `pdm run model` |
+| `req` | `pdm export -f requirements --without-hashes -o requirements.txt` | Exporta dependencias para `requirements.txt`. | `pdm run req` |
+| `check` | `ruff check` | Roda lint para encontrar problemas de estilo e qualidade. | `pdm run check` |
+| `pre_format` | `ruff check --fix` | Aplica correcoes automaticas suportadas pelo Ruff. | `pdm run pre_format` |
+| `format` | `ruff format` | Formata o codigo seguindo padrao do Ruff Formatter. | `pdm run format` |

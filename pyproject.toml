@@ -13,7 +13,6 @@ dependencies = [
     "django-cors-headers>=4.7.0",
     "django-extensions>=4.1",
     "pydotplus>=2.0.2",
-    "faker>=37.3.0",
     "djangorestframework-simplejwt>=5.5.1",
     "dj-database-url>=3.0.0",
     "psycopg2-binary>=2.9.10",
@@ -40,8 +39,6 @@ distribution = true
 
 [tool.pdm.scripts]
 dev = "python src/manage.py runserver"
-devc = "bash -c 'clear && pdm run python src/manage.py runserver'"
-devweb = "pdm run uvicorn config.asgi:application --reload --port 8000"
 runserver = "python src/manage.py runserver"
 createsuperuser = "python src/manage.py createsuperuser"
 pre_migrate = "python src/manage.py makemigrations"
