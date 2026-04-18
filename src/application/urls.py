@@ -63,7 +63,6 @@ router.register(r'category-examples', CategoryExampleViewSet, basename='category
 router.register(r'dispatches', DispatchViewSet, basename='dispatch')
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
     path('api/dispatch/', DispatchViewSet.as_view({'post': 'create'}), name='dispatch-direct-create'),
     path('api/dispatch/<int:pk>/execute/', DispatchViewSet.as_view({'post': 'execute'}), name='dispatch-direct-execute'),

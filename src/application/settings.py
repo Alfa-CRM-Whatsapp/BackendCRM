@@ -2,6 +2,7 @@ from pathlib import Path
 from datetime import timedelta
 import os
 from termios import VEOF
+import dj_database_url
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -62,12 +63,30 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'application.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+MODE = os.getenv("MODE", "DEV").upper()
+
+if MODE == "PROD":
+    database_url = os.getenv("DATABASE_URL")
+
+    if not database_url:
+        raise ValueError(
+            "MODE=PROD requer DATABASE_URL configurada."
+        )
+
+    DATABASES = {
+        "default": dj_database_url.parse(
+            database_url,
+            conn_max_age=600,
+            ssl_require=os.getenv("POSTGRES_SSL", "false").lower() == "true",
+        )
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {
