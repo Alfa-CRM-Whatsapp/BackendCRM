@@ -133,7 +133,7 @@ class TemplateSubmissionViewSet(viewsets.ModelViewSet):
             "components": components
         }
 
-        url = f"https://graph.facebook.com/v23.0/{settings.WABA_ID}/message_templates"
+        url = f"https://graph.facebook.com/v23.0/{settings.BM_ID}/message_templates"
 
         headers = {
             "Authorization": f"Bearer {settings.ACCESS_TOKEN}",

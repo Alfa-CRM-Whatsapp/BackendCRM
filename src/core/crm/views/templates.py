@@ -18,7 +18,7 @@ class WhatsAppTemplateViewSet(viewsets.ModelViewSet):
 
         if instance.meta_template_id:
             try:
-                url = f"https://graph.facebook.com/v23.0/{settings.WABA_ID}/message_templates"
+                url = f"https://graph.facebook.com/v23.0/{settings.BM_ID}/message_templates"
                 params = {
                     "name": instance.name,
                     "language": instance.language

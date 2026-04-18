@@ -98,8 +98,6 @@ class RegisterWhatsappNumberOnMeta(APIView):
         if data.get("success"):
             number = WhatsappNumber.objects.filter(phone_number_id=phone_number_id).first()
             if number:
-                if not number.waba_id:
-                    number.waba_id = str(settings.WABA_ID)
                 number.pin = str(pin)
                 number.status = "REGISTERED"
                 number.verified = True
