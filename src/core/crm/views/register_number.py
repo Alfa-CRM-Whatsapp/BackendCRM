@@ -14,7 +14,7 @@ class RegisterWhatsappNumber(APIView):
         language = request.data.get("language", "pt_BR")
 
         r = requests.post(
-            f"https://graph.facebook.com/v19.0/{settings.WABA_ID}/phone_numbers",
+            f"https://graph.facebook.com/v25.0/{settings.BM_ID}/phone_numbers",
             headers={
                 "Authorization": f"Bearer {settings.ACCESS_TOKEN}"
             },
@@ -33,7 +33,7 @@ class RegisterWhatsappNumber(APIView):
         number = WhatsappNumber.objects.create(
             display_phone_number=phone,
             phone_number_id=data["id"],
-            waba_id=str(settings.WABA_ID),
+            waba_id=data["id"],
             name=phone_name,
             language=language,
             status="CODE_REQUESTED",
@@ -43,7 +43,7 @@ class RegisterWhatsappNumber(APIView):
         print(number.phone_number_id + "Numero Criado")
 
         rc = requests.post(
-            f"https://graph.facebook.com/v19.0/{data['id']}/request_code",
+            f"https://graph.facebook.com/v25.0/{data['id']}/request_code",
             headers={
                 "Authorization": f"Bearer {settings.ACCESS_TOKEN}"
             },
@@ -79,7 +79,7 @@ class RegisterWhatsappNumberOnMeta(APIView):
             )
 
         response = requests.post(
-            f"https://graph.facebook.com/v19.0/{phone_number_id}/register",
+            f"https://graph.facebook.com/v25.0/{phone_number_id}/register",
             headers={
                 "Authorization": f"Bearer {settings.ACCESS_TOKEN}",
                 "Content-Type": "application/json",
