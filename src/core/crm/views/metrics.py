@@ -7,6 +7,7 @@ from core.crm.utils.metrics import (
     get_categories_metrics_cards,
     get_messages_metrics_cards,
     get_numbers_metrics_cards,
+    get_users_metrics_cards,
 )
 
 
@@ -16,6 +17,7 @@ class MetricsView(APIView):
         "categories": get_categories_metrics_cards,
         "numbers": get_numbers_metrics_cards,
         "messages": get_messages_metrics_cards,
+        "users": get_users_metrics_cards,
     }
 
     def get(self, request, metric_type):
@@ -24,7 +26,7 @@ class MetricsView(APIView):
         if not handler:
             return Response(
                 {
-                    "detail": "Tipo de metrica invalido. Use: dashboard, categories, numbers ou messages.",
+                    "detail": "Tipo de metrica invalido. Use: dashboard, categories, numbers, messages ou users.",
                     "available": list(self.METRIC_HANDLERS.keys()),
                 },
                 status=status.HTTP_400_BAD_REQUEST,
