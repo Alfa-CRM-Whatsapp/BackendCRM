@@ -83,14 +83,6 @@ class SendTemplateMessageView(APIView):
                 "payload_sent": payload
             }, status=response.status_code)
 
-        try:
-            from_number = WhatsappNumber.objects.get(phone_number_id=from_number.phone_number_id)
-        except WhatsappNumber.DoesNotExist:
-            return Response(
-                {"error": "Numero remetente nao encontrado para PHONE_NUMBER_ID configurado."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
-
         chat, _ = Chat.objects.get_or_create(
             contact=contact,
             from_number=from_number,

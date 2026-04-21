@@ -127,8 +127,10 @@ class WhatsAppTemplateSerializer(serializers.ModelSerializer):
 class SendTemplateMessageSerializer(serializers.Serializer):
     contact = serializers.IntegerField()
     template = serializers.IntegerField()
-    parameters = serializers.DictField(child=serializers.CharField(), required=False)
-    from_number = serializers.SerializerMethodField()
+    parameters = serializers.DictField(child=serializers.CharField(), required=False, default=dict)
+    # Aceita id direto em from_number ou from_number_obj; tambem aceita objeto com id em from_number_obj.
+    from_number = serializers.IntegerField(required=False, write_only=True)
+    from_number_obj = serializers.JSONField(required=False, write_only=True)
 
     def validate(self, data):
         try:
@@ -140,10 +142,27 @@ class SendTemplateMessageSerializer(serializers.Serializer):
             data["template_obj"] = WhatsAppTemplate.objects.get(id=data["template"])
         except WhatsAppTemplate.DoesNotExist:
             raise serializers.ValidationError("Template não encontrado")
-        
+
+        raw_from_number = data.get("from_number_obj", data.get("from_number"))
+
+        if raw_from_number is None:
+            raise serializers.ValidationError(
+                "from_number (ou from_number_obj) e obrigatorio"
+            )
+
+        if isinstance(raw_from_number, dict):
+            from_number_id = raw_from_number.get("id")
+        else:
+            from_number_id = raw_from_number
+
         try:
-            data["from_number_obj"] = WhatsappNumber.objects.get(id=self.context.get("from_number_id"))
+            from_number_id = int(from_number_id)
+        except (TypeError, ValueError):
+            raise serializers.ValidationError("from_number deve ser um id inteiro valido")
+
+        try:
+            data["from_number_obj"] = WhatsappNumber.objects.get(id=from_number_id)
         except WhatsappNumber.DoesNotExist:
-            raise serializers.ValidationError("Número remetente não encontrado para PHONE_NUMBER_ID configurado.")
+            raise serializers.ValidationError("Numero remetente nao encontrado")
 
         return data
