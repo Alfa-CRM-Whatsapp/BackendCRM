@@ -45,6 +45,7 @@ class SendTemplateMessageView(APIView):
         contact = serializer.validated_data["contact_obj"]
         template = serializer.validated_data["template_obj"]
         parameters = serializer.validated_data.get("parameters", {})
+        from_number = serializer.validated_data["from_number_obj"]
 
         try:
             components = build_send_components(template, parameters)
@@ -64,10 +65,10 @@ class SendTemplateMessageView(APIView):
             }
         }
 
-        url = f"https://graph.facebook.com/v23.0/{settings.PHONE_NUMBER_ID}/messages"
+        url = f"https://graph.facebook.com/v250/{from_number.phone_number_id}/messages"
 
         headers = {
-            "Authorization": f"Bearer {settings.WHATSAPP_TOKEN}",
+            "Authorization": f"Bearer {settings.ACCESS_TOKEN}",
             "Content-Type": "application/json"
         }
 
@@ -83,7 +84,7 @@ class SendTemplateMessageView(APIView):
             }, status=response.status_code)
 
         try:
-            from_number = WhatsappNumber.objects.get(phone_number_id=settings.PHONE_NUMBER_ID)
+            from_number = WhatsappNumber.objects.get(phone_number_id=from_number.phone_number_id)
         except WhatsappNumber.DoesNotExist:
             return Response(
                 {"error": "Numero remetente nao encontrado para PHONE_NUMBER_ID configurado."},
