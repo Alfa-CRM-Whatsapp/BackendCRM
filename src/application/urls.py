@@ -43,6 +43,11 @@ from core.crm.views import (
     CategoryExampleViewSet,
     MetricsView,
     DispatchViewSet,
+    EmbeddedSignupExchangeCodeView,
+    EmbeddedSignupWabaListView,
+    EmbeddedSignupSubscribeAppView,
+    EmbeddedSignupSyncNumbersView,
+    EmbeddedSignupCompleteView,
 )
 
 router = DefaultRouter()
@@ -85,4 +90,9 @@ urlpatterns = [
     path('api/resend-token/', ResendSuperAdminInviteTokenView.as_view(), name='resend-token'),
     path('api/send-template-message/', SendTemplateMessageView.as_view(), name='send-template-message'),
     path('api/metrics/<str:metric_type>/', MetricsView.as_view(), name='metrics'),
+    path('api/embedded-signup/exchange-code/', EmbeddedSignupExchangeCodeView.as_view(), name='embedded-signup-exchange-code'),
+    path('api/embedded-signup/wabas/', EmbeddedSignupWabaListView.as_view(), name='embedded-signup-wabas'),
+    path('api/embedded-signup/subscribe/', EmbeddedSignupSubscribeAppView.as_view(), name='embedded-signup-subscribe'),
+    path('api/embedded-signup/sync-numbers/', EmbeddedSignupSyncNumbersView.as_view(), name='embedded-signup-sync-numbers'),
+    path('api/embedded-signup/complete/', EmbeddedSignupCompleteView.as_view(), name='embedded-signup-complete'),
 ]
