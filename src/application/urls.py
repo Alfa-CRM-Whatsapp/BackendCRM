@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import TokenRefreshView
 
 from drf_spectacular.views import (
     SpectacularAPIView,
@@ -10,6 +9,7 @@ from drf_spectacular.views import (
 
 from core.authentication.views import (
     EmailTokenObtainPairView,
+    EmailTokenRefreshView,
     UserViewSet,
     ApproveSuperAdminInviteView,
     SuperAdminInviteViewSet,
@@ -68,7 +68,7 @@ urlpatterns = [
     path('api/dispatch/', DispatchViewSet.as_view({'post': 'create'}), name='dispatch-direct-create'),
     path('api/dispatch/<int:pk>/execute/', DispatchViewSet.as_view({'post': 'execute'}), name='dispatch-direct-execute'),
     path("api/token/", EmailTokenObtainPairView.as_view()),
-    path("api/token/refresh/", TokenRefreshView.as_view()),
+    path("api/token/refresh/", EmailTokenRefreshView.as_view()),
     path("api/token/is-superadmin/", IsSuperAdminView.as_view(), name="token-is-superadmin"),
     path("api/superadmin/approve/", ApproveSuperAdminInviteView.as_view()),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
