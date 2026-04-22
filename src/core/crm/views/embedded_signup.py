@@ -1,6 +1,8 @@
 import requests
+import logging
 from django.conf import settings
 from rest_framework import status
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -15,6 +17,43 @@ from core.crm.serializers import (
 
 
 GRAPH_VERSION = "v25.0"
+logger = logging.getLogger(__name__)
+
+
+class EmbeddedSignupCallbackView(APIView):
+    # Recebe o code do OAuth da Meta para o frontend continuar o fluxo.
+    def get(self, request: Request) -> Response:
+        try:
+            code = request.GET.get("code")
+
+            if not code:
+                logger.warning("Embedded Signup callback sem code.")
+                return Response(
+                    {
+                        "success": False,
+                        "error": "code not provided",
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            logger.info("Embedded Signup callback recebido com code.")
+            return Response(
+                {
+                    "success": True,
+                    "code": code,
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        except Exception:
+            logger.exception("Erro ao processar callback do Embedded Signup.")
+            return Response(
+                {
+                    "success": False,
+                    "error": "internal error",
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
 
 def _resolve_access_token(requested_token):
