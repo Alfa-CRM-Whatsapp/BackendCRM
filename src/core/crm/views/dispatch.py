@@ -1,5 +1,7 @@
 import uuid
 
+import requests
+from django.conf import settings
 from django.utils import timezone
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -108,16 +110,71 @@ class DispatchViewSet(viewsets.ModelViewSet):
 
         return components_payload
 
+    def _build_send_components(self, template, global_overrides):
+        components = []
+
+        for comp in template.components.all().order_by("order"):
+            if (comp.type or "").lower() != "body":
+                continue
+
+            params = []
+
+            for p in comp.parameters.all().order_by("order"):
+                resolved_value = self._resolve_parameter_value(p, global_overrides)
+
+                if resolved_value in [None, ""]:
+                    param_name = p.name or str(p.position)
+                    raise ValueError(f"Parametro '{param_name}' nao enviado")
+
+                param_payload = {
+                    "type": "text",
+                    "text": str(resolved_value),
+                }
+
+                if p.name:
+                    param_payload["parameter_name"] = p.name
+
+                params.append(param_payload)
+
+            components.append(
+                {
+                    "type": "body",
+                    "parameters": params,
+                }
+            )
+
+        return components
+
     def _execute_dispatch(self, dispatch, from_number, global_overrides):
         now = timezone.now()
         sent_count = 0
+        failed_count = 0
         applied_contacts = []
+        per_contact_results = []
 
         for contact in dispatch.contacts.all():
             template_components = self._build_template_components_payload(
                 dispatch.template,
                 global_overrides,
             )
+
+            try:
+                send_components = self._build_send_components(
+                    dispatch.template,
+                    global_overrides,
+                )
+            except ValueError as exc:
+                failed_count += 1
+
+                per_contact_results.append(
+                    {
+                        "contact_id": contact.id,
+                        "status": "failed",
+                        "error": str(exc),
+                    }
+                )
+
+                continue
 
             resolved_params = {}
             for component in template_components:
@@ -141,39 +198,76 @@ class DispatchViewSet(viewsets.ModelViewSet):
                 from_number=from_number
             )
 
-            local_message_id = f"local-dispatch-{uuid.uuid4().hex}"
-
-            message_json = {
-                "id": local_message_id,
+            payload = {
+                "messaging_product": "whatsapp",
+                "to": contact.number,
                 "type": "template",
-                "timestamp": str(int(now.timestamp())),
                 "template": {
-                    "id": dispatch.template.id,
                     "name": dispatch.template.name,
-                    "language": dispatch.template.language,
-                    "parameter_format": dispatch.template.parameter_format,
-                    "components": template_components,
+                    "language": {
+                        "code": dispatch.template.language,
+                    },
+                    "components": send_components,
                 },
-                "mode": "local_dispatch",
-                "dispatch_id": dispatch.id,
-                "contact_id": contact.id,
             }
 
+            url = f"https://graph.facebook.com/v250/{from_number.phone_number_id}/messages"
+
+            headers = {
+                "Authorization": f"Bearer {settings.ACCESS_TOKEN}",
+                "Content-Type": "application/json",
+            }
+
+            response = requests.post(url, json=payload, headers=headers)
+            response_data = response.json()
+
+            message_id = response_data.get("messages", [{}])[0].get("id") or f"dispatch-{uuid.uuid4().hex}"
+
+            if response.status_code != 200:
+                failed_count += 1
+
+                OutboundWhatsappMessage.objects.create(
+                    id_message=message_id,
+                    contact=contact,
+                    from_number=from_number,
+                    chat=chat,
+                    message=payload,
+                    status="failed",
+                    with_template=True,
+                    raw_response=response_data,
+                )
+
+                per_contact_results.append(
+                    {
+                        "contact_id": contact.id,
+                        "status": "failed",
+                        "meta_status": response.status_code,
+                        "meta_response": response_data,
+                    }
+                )
+
+                continue
+
             OutboundWhatsappMessage.objects.create(
-                id_message=local_message_id,
+                id_message=message_id,
                 contact=contact,
                 from_number=from_number,
                 chat=chat,
-                message=message_json,
+                message=payload,
                 status="sent",
                 with_template=True,
-                raw_response={
-                    "mode": "local_dispatch",
-                    "executed_at": now.isoformat(),
-                }
+                raw_response=response_data,
             )
 
             sent_count += 1
+
+            per_contact_results.append(
+                {
+                    "contact_id": contact.id,
+                    "status": "sent",
+                    "id_message": message_id,
+                }
+            )
 
         dispatch.executed_at = now
         dispatch.params = {
@@ -183,6 +277,7 @@ class DispatchViewSet(viewsets.ModelViewSet):
                 "parameter_format": dispatch.template.parameter_format,
                 "contacts": applied_contacts,
             },
+            "results": per_contact_results,
         }
         dispatch.save(update_fields=["executed_at", "params"])
 
@@ -190,6 +285,8 @@ class DispatchViewSet(viewsets.ModelViewSet):
             "dispatch_id": dispatch.id,
             "template_id": dispatch.template_id,
             "sent_count": sent_count,
+            "failed_count": failed_count,
+            "results": per_contact_results,
             "executed_at": dispatch.executed_at,
         }
 
