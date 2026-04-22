@@ -9,11 +9,11 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-^k0$%9kjskn^lw^gp_jxew_($(z8tloqzj!pfm9w(1+%3@!abr'
+SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey")
 
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "true").lower() == "true"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost").split(",")
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -133,8 +133,6 @@ SPECTACULAR_SETTINGS = {
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
-
-ALLOWED_HOSTS = ['*']
 
 CORS_ALLOW_HEADERS = [
     'authorization',

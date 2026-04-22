@@ -1,4 +1,5 @@
 from django.contrib.auth.models import BaseUserManager
+from django.apps import apps
 
 class UserManager(BaseUserManager):
 
@@ -21,4 +22,9 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
 
-        return self.create_user(email, password, **extra_fields)
+        user = self.create_user(email, password, **extra_fields)
+
+        UserPreferences = apps.get_model('authentication', 'UserPreferences')
+        UserPreferences.objects.get_or_create(user=user)
+
+        return user
