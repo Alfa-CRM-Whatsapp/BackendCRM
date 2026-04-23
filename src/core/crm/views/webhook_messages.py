@@ -1,6 +1,7 @@
 import json
 
 from django.conf import settings
+from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from django.http import HttpResponse, JsonResponse
 from core.crm.views.webhook import (
@@ -11,6 +12,7 @@ from core.crm.views.webhook import (
 )
 
 class WhatsappMessageWebhookView(APIView):
+    permission_classes = [AllowAny]
 
     def get(self, request):
         mode = request.GET.get("hub.mode")
