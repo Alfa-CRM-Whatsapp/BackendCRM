@@ -112,38 +112,44 @@ class DispatchViewSet(viewsets.ModelViewSet):
 
     def _build_send_components(self, template, global_overrides):
         components = []
-
+    
         for comp in template.components.all().order_by("order"):
-            if (comp.type or "").lower() != "body":
+            comp_type = (comp.type or "").lower()
+    
+            if comp_type not in ["header", "body"]:
                 continue
-
+            
             params = []
-
+    
             for p in comp.parameters.all().order_by("order"):
-                resolved_value = self._resolve_parameter_value(p, global_overrides)
-
+                resolved_value = self._resolve_parameter_value(
+                    p,
+                    global_overrides,
+                )
+    
                 if resolved_value in [None, ""]:
                     param_name = p.name or str(p.position)
                     raise ValueError(f"Parametro '{param_name}' nao enviado")
-
+    
                 param_payload = {
                     "type": "text",
                     "text": str(resolved_value),
                 }
-
+    
                 if p.name:
                     param_payload["parameter_name"] = p.name
-
+    
                 params.append(param_payload)
-
+    
             components.append(
                 {
-                    "type": "body",
+                    "type": comp_type,
                     "parameters": params,
                 }
             )
-
+    
         return components
+    
 
     def _execute_dispatch(self, dispatch, from_number, global_overrides):
         now = timezone.now()
