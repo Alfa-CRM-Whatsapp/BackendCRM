@@ -12,7 +12,9 @@ def build_send_components(template, parameters: dict):
     components = []
 
     for comp in template.components.all().order_by("order"):
-        if comp.type != "body":
+        comp_type = (comp.type or "").lower()
+
+        if comp_type not in ["header", "body"]:
             continue
 
         params = []
@@ -26,11 +28,11 @@ def build_send_components(template, parameters: dict):
             params.append({
                 "type": "text",
                 "parameter_name": p.name,
-                "text": value
+                "text": str(value)
             })
 
         components.append({
-            "type": "body",
+            "type": comp_type,
             "parameters": params
         })
 
@@ -65,7 +67,7 @@ class SendTemplateMessageView(APIView):
             }
         }
 
-        url = f"https://graph.facebook.com/v250/{from_number.phone_number_id}/messages"
+        url = f"https://graph.facebook.com/v25.0/{from_number.phone_number_id}/messages"
 
         headers = {
             "Authorization": f"Bearer {settings.ACCESS_TOKEN}",
